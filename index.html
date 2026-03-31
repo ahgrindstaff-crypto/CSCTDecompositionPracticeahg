@@ -2,104 +2,170 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>App Architect: Plain English Decomposition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Architect Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #6366f1; --bg: #f8fafc; --panel: #ffffff; --accent: #10b981; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar { width: 380px; background: var(--panel); border-right: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.05); }
-        
-        /* The "Phone" Mockup */
-        .stage { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #e2e8f0; }
-        #phone-screen { width: 320px; height: 580px; background: white; border: 12px solid #1e293b; border-radius: 40px; position: relative; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-
-        /* Decomposition Styling */
-        .layer { border: 2px dashed #cbd5e1; padding: 15px; border-radius: 12px; position: relative; transition: all 0.3s ease; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .layer::before { content: attr(data-type); position: absolute; top: -10px; left: 10px; background: var(--primary); color: white; font-size: 9px; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
-        
-        /* Input Area */
-        input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; margin-bottom: 10px; outline: none; }
-        input:focus { border-color: var(--primary); }
-        .hint { font-size: 12px; color: #64748b; margin-top: 10px; line-height: 1.5; }
-        
-        h2 { color: #1e293b; margin-top: 0; }
-        .log { margin-top: auto; background: #1e293b; color: #10b981; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 11px; height: 150px; overflow-y: auto; }
-
-        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .phone-screen {
+            width: 320px;
+            height: 580px;
+            background: white;
+            border-radius: 30px;
+            border: 8px solid #1e293b;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            position: relative;
+        }
+        .component-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #6366f1;
+            border: 1px dashed #6366f1;
+            padding: 2px 4px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+        .log-box {
+            background: #0f172a;
+            color: #4ade80;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            padding: 15px;
+            border-radius: 8px;
+            height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen p-8 font-sans">
 
-<div class="sidebar">
-    <h2>🚀 App Architect</h2>
-    <p>Tell the computer what to build in <b>Plain English</b>.</p>
+<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
     
-    <input type="text" id="userTask" placeholder="e.g., 'Add a header for my dog app'..." onkeypress="handleKey(event)">
-    
-    <div class="hint">
-        <b>Try typing:</b><br>
-        • "Add a <u>header</u> for my game"<br>
-        • "Make a <u>section</u> for my stats"<br>
-        • "Put a <u>card</u> inside the section"<br>
-        • "Add a <u>footer</u> at the bottom"
+    <div class="space-y-6">
+        <h1 class="text-3xl font-bold text-slate-800">🚀 App Architect <span class="text-indigo-600">Pro</span></h1>
+        <p class="text-slate-600">Build your app using <b>Exact English</b>. Quotes " " will keep your capitalization!</p>
+        
+        <div class="space-y-2">
+            <input type="text" id="commandInput" placeholder="e.g., Add a 'Header' named 'Bulldog App'..." 
+                class="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-indigo-500 outline-none transition-all">
+            <div class="flex gap-2">
+                <button onclick="processCommand()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700">Build It</button>
+                <button onclick="resetApp()" class="border-2 border-slate-200 px-4 py-2 rounded-lg font-bold hover:bg-slate-100">Start Over</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 text-sm text-slate-500 bg-white p-4 rounded-xl border border-slate-200">
+            <div>
+                <p class="font-bold text-slate-800 mb-1">Text & Headers</p>
+                <p>• Add a <b>header</b> named "My App"</p>
+                <p>• Make a <b>section</b> for "Stats"</p>
+            </div>
+            <div>
+                <p class="font-bold text-slate-800 mb-1">Media & Interaction</p>
+                <p>• Add an <b>image</b> from [URL]</p>
+                <p>• Put a <b>button</b> labeled "Click Me"</p>
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center block">Decomposition Log</label>
+            <div id="log" class="log-box">
+                > System ready...<br>
+                > Waiting for student input...
+            </div>
+        </div>
     </div>
 
-    <div class="log" id="codeLog">// Decomposition Log:<br>> Waiting for input...</div>
-    <button onclick="location.reload()" style="margin-top:10px; padding:8px; cursor:pointer;">Start Over</button>
-</div>
-
-<div class="stage">
-    <div id="phone-screen">
+    <div class="flex justify-center items-start">
+        <div class="phone-screen" id="appCanvas">
+            <div class="p-8 text-center text-slate-300 mt-20 italic">
+                Your app is empty.<br>Try adding a header!
+            </div>
         </div>
+    </div>
 </div>
 
 <script>
-    function handleKey(e) {
-        if (e.key === 'Enter') {
-            const val = document.getElementById('userTask').value.toLowerCase();
-            processInput(val);
-            document.getElementById('userTask').value = '';
-        }
+    const canvas = document.getElementById('appCanvas');
+    const log = document.getElementById('log');
+    const input = document.getElementById('commandInput');
+
+    // Enter key support
+    input.addEventListener("keypress", (e) => { if (e.key === "Enter") processCommand(); });
+
+    function addLog(msg) {
+        log.innerHTML += `<br>> ${msg}`;
+        log.scrollTop = log.scrollHeight;
     }
 
-    function processInput(input) {
-        const screen = document.getElementById('phone-screen');
-        const log = document.getElementById('codeLog');
-        let type = "";
-        let content = "New Component";
-        let target = screen;
+    function resetApp() {
+        canvas.innerHTML = `<div class="p-8 text-center text-slate-300 mt-20 italic">Your app is empty.<br>Try adding a header!</div>`;
+        log.innerHTML = `> System reset.<br>> Waiting for input...`;
+    }
 
-        // Extract content (anything after 'for' or 'about')
-        const contentMatch = input.match(/(?:for|about|named) (.*)/);
-        if (contentMatch) content = contentMatch[1];
+    function processCommand() {
+        const cmd = input.value;
+        if (!cmd) return;
 
-        // Decomposition Logic
-        if (input.includes("header")) {
-            type = "header";
-            target.insertAdjacentHTML('afterbegin', `<header class="layer" data-type="Header"><h3>${content}</h3></header>`);
+        // Reset if first command
+        if (canvas.innerHTML.includes("Your app is empty")) canvas.innerHTML = "";
+
+        // Extract text inside quotes to preserve capitalization
+        const quoteMatch = cmd.match(/"([^"]+)"|'([^']+)'/);
+        const displayLabel = quoteMatch ? (quoteMatch[1] || quoteMatch[2]) : "New Component";
+        
+        let componentHTML = "";
+        let logMsg = "";
+
+        // LOGIC BRANCHING
+        if (cmd.toLowerCase().includes("header")) {
+            componentHTML = `
+                <div class="p-6 border-b border-slate-100">
+                    <span class="component-label">Header</span>
+                    <h1 class="text-2xl font-black text-slate-900">${displayLabel}</h1>
+                </div>`;
+            logMsg = `Decomposed "header" into &lt;h1&gt; with content: "${displayLabel}"`;
         } 
-        else if (input.includes("section")) {
-            type = "section";
-            target.innerHTML += `<section class="layer" data-type="Section" id="sec-${Date.now()}"><h4>${content}</h4></section>`;
-        } 
-        else if (input.includes("card")) {
-            type = "div";
-            const lastSection = screen.querySelector('section:last-child');
-            const parent = lastSection ? lastSection : screen;
-            parent.innerHTML += `<div class="layer" data-type="Card" style="border-color:var(--accent); background:#f0fdf4;">${content}</div>`;
+        else if (cmd.toLowerCase().includes("section") || cmd.toLowerCase().includes("card")) {
+            componentHTML = `
+                <div class="m-4 p-4 border-2 border-dotted border-slate-200 rounded-xl">
+                    <span class="component-label">Section</span>
+                    <p class="text-slate-700 font-medium">${displayLabel}</p>
+                </div>`;
+            logMsg = `Mapped "${cmd.split(' ')[1]}" to &lt;div&gt; container.`;
         }
-        else if (input.includes("footer")) {
-            type = "footer";
-            target.insertAdjacentHTML('beforeend', `<footer class="layer" data-type="Footer" style="margin-top:auto;"><p>${content}</p></footer>`);
+        else if (cmd.toLowerCase().includes("image")) {
+            // Check for a URL in the text
+            const urlMatch = cmd.match(/\bhttps?:\/\/\S+/gi);
+            const imgSrc = urlMatch ? urlMatch[0] : "https://via.placeholder.com/300x200?text=No+Image+Found";
+            
+            componentHTML = `
+                <div class="m-4">
+                    <span class="component-label">Image</span>
+                    <img src="${imgSrc}" class="w-full rounded-lg shadow-sm border border-slate-100" alt="user asset">
+                </div>`;
+            logMsg = `Fetched external asset from URL. Rendering &lt;img&gt;...`;
         }
-        else {
-            alert("I didn't recognize that! Try using the words: header, section, card, or footer.");
-            return;
+        else if (cmd.toLowerCase().includes("button")) {
+            componentHTML = `
+                <div class="m-4">
+                    <button class="w-full bg-indigo-600 text-white p-3 rounded-lg font-bold shadow-md active:scale-95 transition-transform">
+                        ${displayLabel}
+                    </button>
+                </div>`;
+            logMsg = `Created interactive &lt;button&gt;. Styles: bg-indigo-600, rounded-lg.`;
         }
 
-        log.innerHTML += `<br>> Decomposed "${input}" into &lt;${type}&gt;`;
-        log.scrollTop = log.scrollHeight;
+        if (componentHTML) {
+            canvas.innerHTML += componentHTML;
+            addLog(logMsg);
+        } else {
+            addLog(`Error: I don't know how to build "${cmd}" yet.`);
+        }
+
+        input.value = "";
     }
 </script>
 
