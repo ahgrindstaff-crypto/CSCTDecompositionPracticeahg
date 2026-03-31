@@ -2,80 +2,104 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Decomposition Lab: Digital Pulse</title>
+    <title>App Architect: Plain English Decomposition</title>
     <style>
-        :root { --primary: #2563eb; --bg: #0f172a; --panel: #1e293b; --text: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        :root { --primary: #6366f1; --bg: #f8fafc; --panel: #ffffff; --accent: #10b981; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; }
         
-        /* Layout */
-        .controls { width: 350px; background: var(--panel); padding: 20px; border-right: 2px solid #334155; display: flex; flex-direction: column; gap: 15px; }
-        .stage { flex-grow: 1; padding: 40px; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
+        /* Sidebar */
+        .sidebar { width: 380px; background: var(--panel); border-right: 1px solid #e2e8f0; padding: 30px; display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.05); }
         
-        /* The App Container */
-        #app-canvas { width: 400px; min-height: 500px; background: white; border-radius: 20px; color: #333; padding: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px; transition: all 0.3s; }
+        /* The "Phone" Mockup */
+        .stage { flex-grow: 1; display: flex; justify-content: center; align-items: center; background: #e2e8f0; }
+        #phone-screen { width: 320px; height: 580px; background: white; border: 12px solid #1e293b; border-radius: 40px; position: relative; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
 
-        /* Decomposition Visuals */
-        .decomp-box { border: 2px dashed #94a3b8; padding: 10px; border-radius: 8px; position: relative; animation: fadeIn 0.5s ease; }
-        .decomp-box::after { content: attr(data-label); position: absolute; top: -10px; right: 10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+        /* Decomposition Styling */
+        .layer { border: 2px dashed #cbd5e1; padding: 15px; border-radius: 12px; position: relative; transition: all 0.3s ease; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .layer::before { content: attr(data-type); position: absolute; top: -10px; left: 10px; background: var(--primary); color: white; font-size: 9px; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; font-weight: bold; }
         
-        button { background: #334155; color: white; border: 1px solid #475569; padding: 12px; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
-        button:hover { background: var(--primary); }
-        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        /* Input Area */
+        input { width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; margin-bottom: 10px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .hint { font-size: 12px; color: #64748b; margin-top: 10px; line-height: 1.5; }
+        
+        h2 { color: #1e293b; margin-top: 0; }
+        .log { margin-top: auto; background: #1e293b; color: #10b981; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 11px; height: 150px; overflow-y: auto; }
 
-        .code-view { background: #000; color: #10b981; padding: 10px; font-family: monospace; font-size: 12px; border-radius: 5px; margin-top: auto; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
 
-<div class="controls">
-    <h2>🏗️ Decompose It!</h2>
-    <p style="font-size: 0.9em; color: #94a3b8;">Click the parts to break the "Digital Pulse" app into its pillars.</p>
+<div class="sidebar">
+    <h2>🚀 App Architect</h2>
+    <p>Tell the computer what to build in <b>Plain English</b>.</p>
     
-    <button id="btn-header" onclick="addComponent('header', 'Header')">1. Add Header (The Title)</button>
-    <button id="btn-main" onclick="addComponent('main', 'Main Body')">2. Add Main (The Content)</button>
-    <button id="btn-section" onclick="addComponent('section', 'Stats Section', 'main')" disabled>3. Add Section (The Group)</button>
-    <button id="btn-card" onclick="addComponent('div', 'Data Card', 'section')" disabled>4. Add Card (The Detail)</button>
+    <input type="text" id="userTask" placeholder="e.g., 'Add a header for my dog app'..." onkeypress="handleKey(event)">
     
-    <button style="margin-top: 20px; background: #ef4444;" onclick="location.reload()">Reset Lab</button>
-
-    <div class="code-view">
-        <div id="code-display">// Your Decomposition Code will appear here...</div>
+    <div class="hint">
+        <b>Try typing:</b><br>
+        • "Add a <u>header</u> for my game"<br>
+        • "Make a <u>section</u> for my stats"<br>
+        • "Put a <u>card</u> inside the section"<br>
+        • "Add a <u>footer</u> at the bottom"
     </div>
+
+    <div class="log" id="codeLog">// Decomposition Log:<br>> Waiting for input...</div>
+    <button onclick="location.reload()" style="margin-top:10px; padding:8px; cursor:pointer;">Start Over</button>
 </div>
 
 <div class="stage">
-    <div id="app-canvas">
+    <div id="phone-screen">
         </div>
 </div>
 
 <script>
-    function addComponent(tag, label, parentId = 'app-canvas') {
-        const parent = parentId === 'app-canvas' ? document.getElementById('app-canvas') : document.querySelector(parentId);
-        
-        const element = document.createElement(tag);
-        element.className = 'decomp-box';
-        element.setAttribute('data-label', label);
-        
-        // Add some dummy content based on what it is
-        if(tag === 'header') element.innerHTML = "<h3>Digital Pulse</h3>";
-        if(tag === 'main') element.innerHTML = "<p>User Dashboard</p>";
-        if(tag === 'section') element.innerHTML = "<h4>Activity Feed</h4>";
-        if(tag === 'div') element.innerHTML = "<strong>Time: 2h 14m</strong>";
+    function handleKey(e) {
+        if (e.key === 'Enter') {
+            const val = document.getElementById('userTask').value.toLowerCase();
+            processInput(val);
+            document.getElementById('userTask').value = '';
+        }
+    }
 
-        parent.appendChild(element);
+    function processInput(input) {
+        const screen = document.getElementById('phone-screen');
+        const log = document.getElementById('codeLog');
+        let type = "";
+        let content = "New Component";
+        let target = screen;
 
-        // Update the Code Display
-        const codeDisplay = document.getElementById('code-display');
-        codeDisplay.innerText += `\n<${tag}> ... </${tag}>`;
+        // Extract content (anything after 'for' or 'about')
+        const contentMatch = input.match(/(?:for|about|named) (.*)/);
+        if (contentMatch) content = contentMatch[1];
 
-        // Logic to enable next buttons (The Scaffolding)
-        if(tag === 'main') document.getElementById('btn-section').disabled = false;
-        if(tag === 'section') document.getElementById('btn-card').disabled = false;
-        
-        // Disable current button to prevent duplicates
-        const btnId = `btn-${tag === 'div' ? 'card' : tag}`;
-        document.getElementById(btnId).disabled = true;
+        // Decomposition Logic
+        if (input.includes("header")) {
+            type = "header";
+            target.insertAdjacentHTML('afterbegin', `<header class="layer" data-type="Header"><h3>${content}</h3></header>`);
+        } 
+        else if (input.includes("section")) {
+            type = "section";
+            target.innerHTML += `<section class="layer" data-type="Section" id="sec-${Date.now()}"><h4>${content}</h4></section>`;
+        } 
+        else if (input.includes("card")) {
+            type = "div";
+            const lastSection = screen.querySelector('section:last-child');
+            const parent = lastSection ? lastSection : screen;
+            parent.innerHTML += `<div class="layer" data-type="Card" style="border-color:var(--accent); background:#f0fdf4;">${content}</div>`;
+        }
+        else if (input.includes("footer")) {
+            type = "footer";
+            target.insertAdjacentHTML('beforeend', `<footer class="layer" data-type="Footer" style="margin-top:auto;"><p>${content}</p></footer>`);
+        }
+        else {
+            alert("I didn't recognize that! Try using the words: header, section, card, or footer.");
+            return;
+        }
+
+        log.innerHTML += `<br>> Decomposed "${input}" into &lt;${type}&gt;`;
+        log.scrollTop = log.scrollHeight;
     }
 </script>
 
