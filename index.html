@@ -3,169 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Architect Pro</title>
+    <title>App Architect: Wireframe Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .phone-screen {
-            width: 320px;
-            height: 580px;
-            background: white;
-            border-radius: 30px;
-            border: 8px solid #1e293b;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-            overflow-y: auto;
+            width: 340px;
+            height: 620px;
+            background: #ffffff;
+            border-radius: 40px;
+            border: 12px solid #0f172a;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
             position: relative;
+            overflow: hidden; /* Keeps wireframe contained */
         }
-        .component-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-            color: #6366f1;
-            border: 1px dashed #6366f1;
-            padding: 2px 4px;
+        /* The draggable container */
+        .wireframe-element {
+            position: absolute;
+            cursor: move;
+            transition: border 0.2s;
+            border: 2px transparent;
+            width: 90%;
+            left: 5%;
+        }
+        .wireframe-element:hover {
+            border: 2px dashed #6366f1;
+        }
+        /* Control Overlay for Students */
+        .controls {
+            position: absolute;
+            top: -30px;
+            right: 0;
+            display: none;
+            background: #6366f1;
             border-radius: 4px;
-            margin-bottom: 4px;
-            display: inline-block;
+            padding: 2px;
+            gap: 4px;
+            z-index: 50;
         }
+        .wireframe-element:hover .controls { display: flex; }
+        .control-btn { color: white; font-size: 10px; padding: 2px 6px; cursor: pointer; border: 1px solid white; border-radius: 3px; }
+        .control-btn:hover { background: white; color: #6366f1; }
+
         .log-box {
-            background: #0f172a;
-            color: #4ade80;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
-            padding: 15px;
-            border-radius: 8px;
-            height: 200px;
+            background: #1e293b;
+            color: #38bdf8;
+            font-family: 'Courier New', monospace;
+            height: 150px;
             overflow-y: auto;
+            border-bottom: 4px solid #0f172a;
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-8 font-sans">
+<body class="bg-slate-50 p-8">
 
-<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
-    
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
     <div class="space-y-6">
-        <h1 class="text-3xl font-bold text-slate-800">🚀 App Architect <span class="text-indigo-600">Pro</span></h1>
-        <p class="text-slate-600">Build your app using <b>Exact English</b>. Quotes " " will keep your capitalization!</p>
+        <h1 class="text-3xl font-black text-slate-800">🛠️ Wireframe <span class="text-indigo-600">Architect</span></h1>
         
-        <div class="space-y-2">
-            <input type="text" id="commandInput" placeholder="e.g., Add a 'Header' named 'Bulldog App'..." 
-                class="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-indigo-500 outline-none transition-all">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+            <p class="text-sm text-slate-500 font-medium uppercase">Step 1: Add Content</p>
             <div class="flex gap-2">
-                <button onclick="processCommand()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700">Build It</button>
-                <button onclick="resetApp()" class="border-2 border-slate-200 px-4 py-2 rounded-lg font-bold hover:bg-slate-100">Start Over</button>
+                <input type="text" id="cmd" placeholder="e.g. Add 'Header' named 'My App'" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none border border-transparent focus:border-indigo-400">
+                <button onclick="addElement()" class="bg-indigo-600 text-white px-6 rounded-xl font-bold">Add</button>
             </div>
+            
+            <p class="text-sm text-slate-500 font-medium uppercase mt-4">Step 2: Upload Visuals</p>
+            <label class="block w-full text-center bg-emerald-500 text-white p-3 rounded-xl font-bold cursor-pointer hover:bg-emerald-600">
+                Upload Screenshot/Image
+                <input type="file" id="imgIn" class="hidden" accept="image/*" onchange="uploadImage(this)">
+            </label>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 text-sm text-slate-500 bg-white p-4 rounded-xl border border-slate-200">
-            <div>
-                <p class="font-bold text-slate-800 mb-1">Text & Headers</p>
-                <p>• Add a <b>header</b> named "My App"</p>
-                <p>• Make a <b>section</b> for "Stats"</p>
-            </div>
-            <div>
-                <p class="font-bold text-slate-800 mb-1">Media & Interaction</p>
-                <p>• Add an <b>image</b> from [URL]</p>
-                <p>• Put a <b>button</b> labeled "Click Me"</p>
-            </div>
+        <div class="log-box p-4 rounded-2xl">
+            > Wireframe Engine Online...<br>
+            > Use the arrows on components to move them!
+            <div id="logContent"></div>
         </div>
-
-        <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center block">Decomposition Log</label>
-            <div id="log" class="log-box">
-                > System ready...<br>
-                > Waiting for student input...
-            </div>
-        </div>
+        <button onclick="location.reload()" class="text-slate-400 font-bold hover:text-red-500">Clear All & Start Over</button>
     </div>
 
-    <div class="flex justify-center items-start">
-        <div class="phone-screen" id="appCanvas">
-            <div class="p-8 text-center text-slate-300 mt-20 italic">
-                Your app is empty.<br>Try adding a header!
+    <div class="flex justify-center">
+        <div class="phone-screen" id="viewport">
             </div>
-        </div>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('appCanvas');
-    const log = document.getElementById('log');
-    const input = document.getElementById('commandInput');
+    const viewport = document.getElementById('viewport');
+    const log = document.getElementById('logContent');
 
-    // Enter key support
-    input.addEventListener("keypress", (e) => { if (e.key === "Enter") processCommand(); });
-
-    function addLog(msg) {
+    function writeLog(msg) {
         log.innerHTML += `<br>> ${msg}`;
-        log.scrollTop = log.scrollHeight;
+        log.parentElement.scrollTop = log.parentElement.scrollHeight;
     }
 
-    function resetApp() {
-        canvas.innerHTML = `<div class="p-8 text-center text-slate-300 mt-20 italic">Your app is empty.<br>Try adding a header!</div>`;
-        log.innerHTML = `> System reset.<br>> Waiting for input...`;
-    }
+    // Function to Move Elements
+    function move(btn, direction) {
+        const el = btn.closest('.wireframe-element');
+        let top = parseInt(el.style.top) || 0;
+        const step = 20;
 
-    function processCommand() {
-        const cmd = input.value;
-        if (!cmd) return;
-
-        // Reset if first command
-        if (canvas.innerHTML.includes("Your app is empty")) canvas.innerHTML = "";
-
-        // Extract text inside quotes to preserve capitalization
-        const quoteMatch = cmd.match(/"([^"]+)"|'([^']+)'/);
-        const displayLabel = quoteMatch ? (quoteMatch[1] || quoteMatch[2]) : "New Component";
+        if (direction === 'up') top -= step;
+        if (direction === 'down') top += step;
         
-        let componentHTML = "";
-        let logMsg = "";
+        el.style.top = top + "px";
+        writeLog(`Moved component to Y-axis: ${top}px`);
+    }
 
-        // LOGIC BRANCHING
-        if (cmd.toLowerCase().includes("header")) {
-            componentHTML = `
-                <div class="p-6 border-b border-slate-100">
-                    <span class="component-label">Header</span>
-                    <h1 class="text-2xl font-black text-slate-900">${displayLabel}</h1>
-                </div>`;
-            logMsg = `Decomposed "header" into &lt;h1&gt; with content: "${displayLabel}"`;
-        } 
-        else if (cmd.toLowerCase().includes("section") || cmd.toLowerCase().includes("card")) {
-            componentHTML = `
-                <div class="m-4 p-4 border-2 border-dotted border-slate-200 rounded-xl">
-                    <span class="component-label">Section</span>
-                    <p class="text-slate-700 font-medium">${displayLabel}</p>
-                </div>`;
-            logMsg = `Mapped "${cmd.split(' ')[1]}" to &lt;div&gt; container.`;
-        }
-        else if (cmd.toLowerCase().includes("image")) {
-            // Check for a URL in the text
-            const urlMatch = cmd.match(/\bhttps?:\/\/\S+/gi);
-            const imgSrc = urlMatch ? urlMatch[0] : "https://via.placeholder.com/300x200?text=No+Image+Found";
-            
-            componentHTML = `
-                <div class="m-4">
-                    <span class="component-label">Image</span>
-                    <img src="${imgSrc}" class="w-full rounded-lg shadow-sm border border-slate-100" alt="user asset">
-                </div>`;
-            logMsg = `Fetched external asset from URL. Rendering &lt;img&gt;...`;
-        }
-        else if (cmd.toLowerCase().includes("button")) {
-            componentHTML = `
-                <div class="m-4">
-                    <button class="w-full bg-indigo-600 text-white p-3 rounded-lg font-bold shadow-md active:scale-95 transition-transform">
-                        ${displayLabel}
-                    </button>
-                </div>`;
-            logMsg = `Created interactive &lt;button&gt;. Styles: bg-indigo-600, rounded-lg.`;
-        }
+    function createWrapper(innerpHTML, type) {
+        const wrapper = document.createElement('div');
+        wrapper.className = "wireframe-element p-2";
+        wrapper.style.top = (viewport.children.length * 80) + "px"; // Auto-stack initially
+        
+        wrapper.innerHTML = `
+            <div class="controls">
+                <div class="control-btn" onclick="move(this, 'up')">▲</div>
+                <div class="control-btn" onclick="move(this, 'down')">▼</div>
+                <div class="control-btn" onclick="this.closest('.wireframe-element').remove()">✕</div>
+            </div>
+            ${innerpHTML}
+        `;
+        viewport.appendChild(wrapper);
+    }
 
-        if (componentHTML) {
-            canvas.innerHTML += componentHTML;
-            addLog(logMsg);
+    function addElement() {
+        const val = document.getElementById('cmd').value;
+        if (!val) return;
+
+        // Simple decomposition for headers/buttons
+        if (val.toLowerCase().includes('header')) {
+            createWrapper(`<h1 class="text-xl font-bold p-3 bg-slate-100 rounded-lg border border-slate-200">${val.split("'")[1] || 'Header'}</h1>`, 'Header');
+        } else if (val.toLowerCase().includes('button')) {
+            createWrapper(`<button class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold shadow-lg">${val.split("'")[1] || 'Button'}</button>`, 'Button');
         } else {
-            addLog(`Error: I don't know how to build "${cmd}" yet.`);
+            createWrapper(`<div class="p-4 bg-white border border-slate-200 rounded-lg text-sm">${val}</div>`, 'Text');
         }
+        
+        writeLog(`Added ${val} to wireframe.`);
+        document.getElementById('cmd').value = "";
+    }
 
-        input.value = "";
+    function uploadImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                createWrapper(`<img src="${e.target.result}" class="w-full rounded-xl shadow-md border border-slate-200">`, 'Image');
+                writeLog(`Student Screenshot "${file.name}" placed.`);
+            }
+            reader.readAsDataURL(file);
+        }
     }
 </script>
 
