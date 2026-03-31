@@ -3,85 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Architect: Code & Canvas</title>
+    <title>App Architect: Grid & UI/UX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
-        .phone-screen {
-            width: 320px;
-            height: 580px;
+        /* Larger Phone Canvas */
+        .phone-viewport {
+            width: 400px;
+            height: 720px;
             background: white;
-            border-radius: 40px;
-            border: 10px solid #0f172a;
+            border-radius: 48px;
+            border: 14px solid #0f172a;
             position: relative;
             overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            /* Grid Pattern */
+            background-image: 
+                linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+                linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+            background-size: 20px 20px;
         }
+        
         .code-pane {
-            background: #1e1e1e;
-            color: #d4d4d4;
+            background: #111827;
+            color: #e5e7eb;
             font-family: 'Fira Code', monospace;
             font-size: 13px;
-            border-radius: 12px;
-            height: 300px;
+            border-radius: 16px;
+            height: 350px;
             overflow: auto;
-            padding: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #374151;
         }
-        .component-active {
-            border: 2px solid #6366f1;
+
+        .ui-component {
             position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .nudge-tool {
+        
+        .ui-component:hover {
+            outline: 2px solid #6366f1;
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .nudge-controls {
             position: absolute;
-            top: -25px;
-            right: 0;
+            top: 4px;
+            right: 4px;
             background: #6366f1;
-            color: white;
             display: flex;
-            gap: 5px;
-            padding: 2px 5px;
+            gap: 2px;
+            padding: 2px;
+            border-radius: 6px;
+            z-index: 30;
+            opacity: 0;
+        }
+
+        .ui-component:hover .nudge-controls { opacity: 1; }
+
+        .control-btn {
+            color: white;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 10px;
-            z-index: 20;
+            font-size: 11px;
         }
     </style>
 </head>
-<body class="bg-slate-900 min-h-screen text-slate-200 p-6">
+<body class="bg-slate-950 text-slate-100 p-8 min-h-screen">
 
-<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
     
-    <div class="lg:col-span-7 space-y-6">
+    <div class="lg:col-span-7 flex flex-col gap-6">
         <div>
-            <h1 class="text-3xl font-bold text-white">🚀 App Architect <span class="text-indigo-400">Code-View</span></h1>
-            <p class="text-slate-400">Type to build. Watch the code translate in real-time.</p>
+            <h1 class="text-4xl font-black text-white tracking-tight italic">APP ARCHITECT <span class="text-indigo-500">PRO</span></h1>
+            <p class="text-slate-500 mt-2">Visualizing Code: Drag, Drop, and Develop.</p>
         </div>
 
-        <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl space-y-4">
-            <div class="flex gap-2">
-                <input type="text" id="cmdInput" placeholder="Add a 'Header' named 'Mr. Grindstaff'..." 
-                    class="flex-1 p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none focus:border-indigo-500 text-white">
-                <button onclick="processInput()" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2 rounded-xl font-bold transition-all">Generate</button>
+        <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-6">
+            <div class="flex gap-4">
+                <input type="text" id="cmdInput" placeholder='e.g. Add "Header" named "Mr. Grindstaff"' 
+                    class="flex-1 p-4 bg-slate-800 border border-slate-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
+                <button onclick="addComponent()" class="bg-indigo-600 hover:bg-indigo-500 px-8 py-4 rounded-2xl font-black transition-all">GENERATE</button>
             </div>
-            <div class="flex gap-3">
-                <label class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-bold cursor-pointer transition-all">
-                    📷 Add Image
-                    <input type="file" id="imgUpload" class="hidden" accept="image/*" onchange="handleImage(this)">
+
+            <div class="flex items-center gap-4">
+                <label class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl font-bold cursor-pointer transition-all flex items-center gap-2">
+                    <span>📁 Upload Assets</span>
+                    <input type="file" class="hidden" accept="image/*" onchange="handleFile(this)">
                 </label>
-                <button onclick="resetAll()" class="text-slate-500 hover:text-red-400 text-sm font-bold">Clear Project</button>
+                <button onclick="resetApp()" class="text-slate-500 hover:text-red-400 font-bold uppercase text-xs tracking-widest">Clear Workspace</button>
             </div>
         </div>
 
-        <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Source Code (Live Translation)</label>
-            <pre class="code-pane"><code id="codeDisplay" class="language-html">&lt;!-- Your App Code Appears Here --&gt;</code></pre>
+        <div class="space-y-3">
+            <div class="flex justify-between items-end">
+                <label class="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em]">Source Code Editor</label>
+                <span class="text-[10px] text-slate-600">READ-ONLY TRANSLATION</span>
+            </div>
+            <pre class="code-pane"><code id="codeDisplay" class="language-html">&lt;!-- Wireframe Code --&gt;</code></pre>
         </div>
     </div>
 
     <div class="lg:col-span-5 flex flex-col items-center">
-        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Device Prototype</label>
-        <div class="phone-screen" id="viewport">
-            <div id="placeholder" class="p-10 text-center text-slate-300 mt-20 italic">
-                Your wireframe is empty.<br>Start coding on the left!
+        <label class="text-xs font-bold text-slate-500 uppercase tracking-[0.2em] mb-6">Device Frame (Grid: 20px)</label>
+        
+        <div class="phone-viewport shadow-indigo-500/10" id="canvas">
+            <div id="welcome" class="mt-40 p-12 text-center">
+                <div class="w-16 h-16 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-2xl">📱</span>
+                </div>
+                <p class="text-slate-400 italic">Add your first component to see the grid in action.</p>
             </div>
         </div>
     </div>
@@ -90,119 +123,105 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
 <script>
-    let appComponents = [];
+    let projectItems = [];
 
-    function updateCodeView() {
+    function updateEditor() {
         const display = document.getElementById('codeDisplay');
-        if (appComponents.length === 0) {
+        if (projectItems.length === 0) {
             display.textContent = "";
         } else {
-            // Map components to clean HTML strings for the code editor
-            const codeString = appComponents.map(comp => comp.htmlCode.trim()).join('\n');
-            display.textContent = codeString;
+            const code = projectItems.map(item => item.code.trim()).join('\n');
+            display.textContent = code;
         }
         Prism.highlightElement(display);
     }
 
-    function renderViewport() {
-        const viewport = document.getElementById('viewport');
-        viewport.innerHTML = "";
+    function render() {
+        const canvas = document.getElementById('canvas');
+        canvas.innerHTML = "";
         
-        appComponents.forEach((comp, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = "component-active group";
-            wrapper.style.marginTop = comp.type === 'Header' ? '0' : '10px';
-            
-            wrapper.innerHTML = `
-                <div class="nudge-tool opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="moveComp(${index}, -1)">▲</button>
-                    <button onclick="moveComp(${index}, 1)">▼</button>
-                    <button onclick="removeComp(${index})" class="text-red-300 ml-2">✕</button>
+        projectItems.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = "ui-component";
+            div.innerHTML = `
+                <div class="nudge-controls">
+                    <button class="control-btn" onclick="move(${i}, -1)">▲</button>
+                    <button class="control-btn" onclick="move(${i}, 1)">▼</button>
+                    <button class="control-btn bg-red-500/20" onclick="remove(${i})">✕</button>
                 </div>
-                ${comp.renderedHTML}
+                ${item.render}
             `;
-            viewport.appendChild(wrapper);
+            canvas.appendChild(div);
         });
 
-        if (appComponents.length === 0) {
-            viewport.innerHTML = `<div class="p-10 text-center text-slate-300 mt-20 italic">Empty Wireframe.</div>`;
+        if (projectItems.length === 0) {
+            canvas.innerHTML = `<div class="mt-40 p-12 text-center text-slate-400 italic">Empty Canvas</div>`;
         }
-        updateCodeView();
+        updateEditor();
     }
 
-    function processInput() {
-        const input = document.getElementById('cmdInput').value;
-        if (!input) return;
+    function addComponent() {
+        const val = document.getElementById('cmdInput').value;
+        if (!val) return;
 
-        // Capture exactly what is inside quotes
-        const match = input.match(/"([^"]+)"|'([^']+)'/);
-        const userText = match ? (match[1] || match[2]) : "Untitled";
+        const match = val.match(/"([^"]+)"|'([^']+)'/);
+        const name = match ? (match[1] || match[2]) : "New Component";
 
-        let newComp = {};
-
-        if (input.toLowerCase().includes('header')) {
-            newComp = {
-                type: 'Header',
-                htmlCode: `<h1 class="text-2xl font-black p-6 bg-white border-b text-slate-900">${userText}</h1>`,
-                renderedHTML: `<h1 class="text-2xl font-black p-6 bg-white border-b text-slate-900">${userText}</h1>`
+        let newItem = {};
+        if (val.toLowerCase().includes('header')) {
+            newItem = {
+                code: `<h1 class="text-3xl font-extrabold p-8 bg-white border-b-2 border-indigo-100 text-slate-900">${name}</h1>`,
+                render: `<h1 class="text-3xl font-extrabold p-8 bg-white border-b-2 border-indigo-100 text-slate-900">${name}</h1>`
             };
-        } 
-        else if (input.toLowerCase().includes('button')) {
-            newComp = {
-                type: 'Button',
-                htmlCode: `<button class="w-11/12 mx-auto block bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg">${userText}</button>`,
-                renderedHTML: `<div class="p-2"><button class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg">${userText}</button></div>`
+        } else if (val.toLowerCase().includes('button')) {
+            newItem = {
+                code: `<button class="w-full bg-indigo-600 text-white py-5 rounded-3xl font-black uppercase tracking-widest shadow-xl">${name}</button>`,
+                render: `<div class="p-6"><button class="w-full bg-indigo-600 text-white py-5 rounded-3xl font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all">${name}</button></div>`
             };
-        }
-        else {
-            newComp = {
-                type: 'Text',
-                htmlCode: `<p class="p-4 text-slate-600">${userText}</p>`,
-                renderedHTML: `<p class="p-4 text-slate-600">${userText}</p>`
+        } else {
+            newItem = {
+                code: `<div class="px-8 py-4 text-slate-500 border-l-4 border-indigo-500 m-4 bg-slate-50 font-medium">${name}</div>`,
+                render: `<div class="px-8 py-4 text-slate-500 border-l-4 border-indigo-500 m-4 bg-slate-50 font-medium">${name}</div>`
             };
         }
 
-        appComponents.push(newComp);
-        renderViewport();
+        projectItems.push(newItem);
+        render();
         document.getElementById('cmdInput').value = "";
     }
 
-    function handleImage(input) {
+    function handleFile(input) {
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                appComponents.push({
-                    type: 'Image',
-                    htmlCode: `<img src="user_asset.png" class="w-full rounded-xl shadow-md">`,
-                    renderedHTML: `<div class="p-4"><img src="${e.target.result}" class="w-full rounded-xl shadow-md"></div>`
+            reader.onload = (e) => {
+                projectItems.push({
+                    code: `<img src="uploaded_screenshot.png" class="w-full rounded-3xl shadow-2xl">`,
+                    render: `<div class="p-6"><img src="${e.target.result}" class="w-full rounded-3xl shadow-2xl border-4 border-white"></div>`
                 });
-                renderViewport();
-            }
+                render();
+            };
             reader.readAsDataURL(file);
         }
     }
 
-    function moveComp(index, direction) {
-        const newIndex = index + direction;
-        if (newIndex >= 0 && newIndex < appComponents.length) {
-            const temp = appComponents[index];
-            appComponents[index] = appComponents[newIndex];
-            appComponents[newIndex] = temp;
-            renderViewport();
+    function move(i, dir) {
+        const to = i + dir;
+        if (to >= 0 && to < projectItems.length) {
+            [projectItems[i], projectItems[to]] = [projectItems[to], projectItems[i]];
+            render();
         }
     }
 
-    function removeComp(index) {
-        appComponents.splice(index, 1);
-        renderViewport();
+    function remove(i) {
+        projectItems.splice(i, 1);
+        render();
     }
 
-    function resetAll() {
-        appComponents = [];
-        renderViewport();
+    function resetApp() {
+        projectItems = [];
+        render();
     }
 </script>
-
 </body>
 </html>
