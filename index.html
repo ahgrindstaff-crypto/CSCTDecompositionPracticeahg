@@ -2,88 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Decomposition Challenge: The Digital Pulse App</title>
+    <title>Decomposition Lab: Digital Pulse</title>
     <style>
-        :root {
-            --bg: #f4f4f9;
-            --primary: #2563eb;
-            --secondary: #64748b;
-            --accent: #f59e0b;
-            --border: #cbd5e1;
-        }
-
-        body { font-family: system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; }
-
-        /* The Workspace Layout */
-        .container { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 20px; padding: 20px; }
-
-        /* Instructions Side */
-        .instructions { background: white; padding: 20px; border-radius: 8px; border: 2px solid var(--border); overflow-y: auto; }
-
-        /* Preview Side (The "App") */
-        .preview { background: #334155; padding: 20px; border-radius: 8px; color: white; display: flex; flex-direction: column; gap: 10px; }
-
-        /* Visual Decomposition Magic: Boxes appear as they are coded */
-        header, main, footer, section, div {
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            padding: 15px;
-            position: relative;
-            min-height: 50px;
-        }
-
-        header::before { content: "HEADER (Layer 1)"; position: absolute; top: 2px; left: 5px; font-size: 10px; opacity: 0.6; }
-        main::before { content: "MAIN (Layer 1)"; position: absolute; top: 2px; left: 5px; font-size: 10px; opacity: 0.6; }
-        section::before { content: "SECTION (Layer 2)"; position: absolute; top: 2px; left: 5px; font-size: 10px; color: var(--accent); }
-        .card::before { content: "DIV (Layer 3 - Complex)"; position: absolute; top: 2px; left: 5px; font-size: 10px; color: #10b981; }
-
-        /* Styling for the components */
-        header { background: rgba(37, 99, 235, 0.2); border: 2px solid var(--primary); }
-        main { background: rgba(255, 255, 255, 0.05); flex-grow: 1; }
-        .card { background: white; color: black; border-radius: 5px; border: 2px solid #10b981; margin: 10px 0; }
+        :root { --primary: #2563eb; --bg: #0f172a; --panel: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        h1, h2, p { margin: 5px 0; }
-        .btn { background: var(--primary); color: white; padding: 8px; border-radius: 4px; display: inline-block; font-size: 12px; }
+        /* Layout */
+        .controls { width: 350px; background: var(--panel); padding: 20px; border-right: 2px solid #334155; display: flex; flex-direction: column; gap: 15px; }
+        .stage { flex-grow: 1; padding: 40px; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
+        
+        /* The App Container */
+        #app-canvas { width: 400px; min-height: 500px; background: white; border-radius: 20px; color: #333; padding: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 10px; transition: all 0.3s; }
+
+        /* Decomposition Visuals */
+        .decomp-box { border: 2px dashed #94a3b8; padding: 10px; border-radius: 8px; position: relative; animation: fadeIn 0.5s ease; }
+        .decomp-box::after { content: attr(data-label); position: absolute; top: -10px; right: 10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
+        
+        button { background: #334155; color: white; border: 1px solid #475569; padding: 12px; border-radius: 8px; cursor: pointer; text-align: left; transition: 0.2s; }
+        button:hover { background: var(--primary); }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .code-view { background: #000; color: #10b981; padding: 10px; font-family: monospace; font-size: 12px; border-radius: 5px; margin-top: auto; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="instructions">
-        <h2>🏗️ Decomposition Challenge</h2>
-        <p>Your goal is to break the "Digital Pulse" app into smaller pieces. Look at the code on the right and start nesting!</p>
-        
-        <hr>
-        <h3>Level 1: The Frame</h3>
-        <p>Inside the <code>&lt;main&gt;</code> tag, create a <code>&lt;header&gt;</code> and a <code>&lt;footer&gt;</code>.</p>
+<div class="controls">
+    <h2>🏗️ Decompose It!</h2>
+    <p style="font-size: 0.9em; color: #94a3b8;">Click the parts to break the "Digital Pulse" app into its pillars.</p>
+    
+    <button id="btn-header" onclick="addComponent('header', 'Header')">1. Add Header (The Title)</button>
+    <button id="btn-main" onclick="addComponent('main', 'Main Body')">2. Add Main (The Content)</button>
+    <button id="btn-section" onclick="addComponent('section', 'Stats Section', 'main')" disabled>3. Add Section (The Group)</button>
+    <button id="btn-card" onclick="addComponent('div', 'Data Card', 'section')" disabled>4. Add Card (The Detail)</button>
+    
+    <button style="margin-top: 20px; background: #ef4444;" onclick="location.reload()">Reset Lab</button>
 
-        <h3>Level 2: The Section</h3>
-        <p>Inside <code>&lt;main&gt;</code>, add a <code>&lt;section&gt;</code> for the User Statistics.</p>
-
-        <h3>Level 3: The Complex Thinkers</h3>
-        <p>Inside the <code>&lt;section&gt;</code>, create a <code>&lt;div class="card"&gt;</code>. Inside that card, add an <code>&lt;img&gt;</code> and a <code>&lt;p&gt;</code>.</p>
+    <div class="code-view">
+        <div id="code-display">// Your Decomposition Code will appear here...</div>
     </div>
+</div>
 
-    <div class="preview">
-        <header>
-            <h1>Digital Pulse v1.0</h1>
-        </header>
-
-        <main>
-            <section>
-                <h2>User Stats</h2>
-                <div class="card">
-                    <p>Daily Screen Time: 2h 15m</p>
-                    <div class="btn">View Details</div>
-                </div>
-            </section>
-        </main>
-
-        <footer>
-            <p>Blue Valley USD 229 - Tech Ed</p>
-        </footer>
-
+<div class="stage">
+    <div id="app-canvas">
         </div>
 </div>
+
+<script>
+    function addComponent(tag, label, parentId = 'app-canvas') {
+        const parent = parentId === 'app-canvas' ? document.getElementById('app-canvas') : document.querySelector(parentId);
+        
+        const element = document.createElement(tag);
+        element.className = 'decomp-box';
+        element.setAttribute('data-label', label);
+        
+        // Add some dummy content based on what it is
+        if(tag === 'header') element.innerHTML = "<h3>Digital Pulse</h3>";
+        if(tag === 'main') element.innerHTML = "<p>User Dashboard</p>";
+        if(tag === 'section') element.innerHTML = "<h4>Activity Feed</h4>";
+        if(tag === 'div') element.innerHTML = "<strong>Time: 2h 14m</strong>";
+
+        parent.appendChild(element);
+
+        // Update the Code Display
+        const codeDisplay = document.getElementById('code-display');
+        codeDisplay.innerText += `\n<${tag}> ... </${tag}>`;
+
+        // Logic to enable next buttons (The Scaffolding)
+        if(tag === 'main') document.getElementById('btn-section').disabled = false;
+        if(tag === 'section') document.getElementById('btn-card').disabled = false;
+        
+        // Disable current button to prevent duplicates
+        const btnId = `btn-${tag === 'div' ? 'card' : tag}`;
+        document.getElementById(btnId).disabled = true;
+    }
+</script>
 
 </body>
 </html>
