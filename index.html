@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Decomposition Challenge: The Digital Pulse App</title>
+    <style>
+        :root {
+            --bg: #f4f4f9;
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --border: #cbd5e1;
+        }
+
+        body { font-family: system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; }
+
+        /* The Workspace Layout */
+        .container { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 20px; padding: 20px; }
+
+        /* Instructions Side */
+        .instructions { background: white; padding: 20px; border-radius: 8px; border: 2px solid var(--border); overflow-y: auto; }
+
+        /* Preview Side (The "App") */
+        .preview { background: #334155; padding: 20px; border-radius: 8px; color: white; display: flex; flex-direction: column; gap: 10px; }
+
+        /* Visual Decomposition Magic: Boxes appear as they are coded */
+        header, main, footer, section, div {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            position: relative;
+            min-height: 50px;
+        }
+
+        header::before { content: "HEADER (Layer 1)"; position: absolute; top: 2px; left: 5px; font-size: 10px; opacity: 0.6; }
+        main::before { content: "MAIN (Layer 1)"; position: absolute; top: 2px; left: 5px; font-size: 10px; opacity: 0.6; }
+        section::before { content: "SECTION (Layer 2)"; position: absolute; top: 2px; left: 5px; font-size: 10px; color: var(--accent); }
+        .card::before { content: "DIV (Layer 3 - Complex)"; position: absolute; top: 2px; left: 5px; font-size: 10px; color: #10b981; }
+
+        /* Styling for the components */
+        header { background: rgba(37, 99, 235, 0.2); border: 2px solid var(--primary); }
+        main { background: rgba(255, 255, 255, 0.05); flex-grow: 1; }
+        .card { background: white; color: black; border-radius: 5px; border: 2px solid #10b981; margin: 10px 0; }
+        
+        h1, h2, p { margin: 5px 0; }
+        .btn { background: var(--primary); color: white; padding: 8px; border-radius: 4px; display: inline-block; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="instructions">
+        <h2>🏗️ Decomposition Challenge</h2>
+        <p>Your goal is to break the "Digital Pulse" app into smaller pieces. Look at the code on the right and start nesting!</p>
+        
+        <hr>
+        <h3>Level 1: The Frame</h3>
+        <p>Inside the <code>&lt;main&gt;</code> tag, create a <code>&lt;header&gt;</code> and a <code>&lt;footer&gt;</code>.</p>
+
+        <h3>Level 2: The Section</h3>
+        <p>Inside <code>&lt;main&gt;</code>, add a <code>&lt;section&gt;</code> for the User Statistics.</p>
+
+        <h3>Level 3: The Complex Thinkers</h3>
+        <p>Inside the <code>&lt;section&gt;</code>, create a <code>&lt;div class="card"&gt;</code>. Inside that card, add an <code>&lt;img&gt;</code> and a <code>&lt;p&gt;</code>.</p>
+    </div>
+
+    <div class="preview">
+        <header>
+            <h1>Digital Pulse v1.0</h1>
+        </header>
+
+        <main>
+            <section>
+                <h2>User Stats</h2>
+                <div class="card">
+                    <p>Daily Screen Time: 2h 15m</p>
+                    <div class="btn">View Details</div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Blue Valley USD 229 - Tech Ed</p>
+        </footer>
+
+        </div>
+</div>
+
+</body>
+</html>
