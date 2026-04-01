@@ -3,130 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Architect: Professional Editor</title>
+    <title>App Architect: 5-Layer Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
         .phone-viewport {
-            width: 380px; height: 680px; background: white; border-radius: 48px; border: 12px solid #0f172a;
-            position: relative; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-            background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px), linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
-            background-size: 20px 20px;
+            width: 380px; height: 660px; background: white; border-radius: 48px; border: 12px solid #0f172a;
+            position: relative; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.4);
         }
-        .code-pane { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 12px; height: 180px; overflow: auto; padding: 1rem; border: 1px solid #30363d; }
+        .screen-container { width: 100%; height: 100%; overflow-y: auto; display: none; }
+        .screen-active { display: block; }
+        .code-pane { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; font-size: 11px; height: 150px; overflow: auto; padding: 1rem; border-radius: 12px; }
+        .tab-active { background: #6366f1 !important; color: white !important; }
         .ui-component { position: relative; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
-        .ui-component:hover { border: 2px dashed #6366f1; background: rgba(99,102,241,0.05); }
+        .ui-component:hover { border: 2px dashed #6366f1; }
         .ui-component.selected { border: 2px solid #6366f1; background: rgba(99,102,241,0.1); }
-        .nudge-controls { position: absolute; top: -30px; right: 0; background: #6366f1; display: flex; gap: 2px; padding: 2px; border-radius: 6px; z-index: 50; }
-        .control-btn { color: white; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 10px; }
     </style>
 </head>
-<body class="bg-[#0b0e14] text-slate-200 p-4 min-h-screen font-sans">
+<body class="bg-[#0b0e14] text-slate-200 p-4 min-h-screen">
 
 <div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
     
     <div class="lg:col-span-4 space-y-4">
-        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
-            <h2 class="text-xl font-black mb-4 uppercase tracking-tighter">🚀 Create</h2>
-            <div class="flex flex-col gap-3">
-                <input type="text" id="cmdInput" placeholder='Add "Header" named "App Title"...' 
-                    class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-white">
-                <button onclick="addComponent()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-black transition-all text-sm">BUILD NEW</button>
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
+            <h3 class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4">Project Screens (Layers)</h3>
+            <div class="flex flex-wrap gap-2" id="screenTabs">
+                <button onclick="switchScreen(0)" id="tab-0" class="tab-active px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold transition-all">Home</button>
+                <button onclick="switchScreen(1)" id="tab-1" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold transition-all">Screen 2</button>
+                <button onclick="switchScreen(2)" id="tab-2" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold transition-all">Screen 3</button>
+                <button onclick="switchScreen(3)" id="tab-3" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold transition-all">Screen 4</button>
+                <button onclick="switchScreen(4)" id="tab-4" class="px-4 py-2 bg-slate-800 rounded-lg text-xs font-bold transition-all">Screen 5</button>
             </div>
         </div>
 
-        <div id="inspector" class="bg-indigo-900/20 p-6 rounded-3xl border border-indigo-500/30 shadow-xl hidden">
-            <h3 class="text-indigo-400 font-black text-xs uppercase tracking-widest mb-4">Component Inspector</h3>
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+            <h2 class="text-sm font-black mb-4 uppercase text-slate-400">Add to <span id="currentScreenName" class="text-white">Home</span></h2>
+            <div class="flex flex-col gap-3">
+                <input type="text" id="cmdInput" placeholder='Add "Button" named "Next Page"...' 
+                    class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-white text-sm">
+                <button onclick="addComponent()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Build Component</button>
+            </div>
+        </div>
+
+        <div id="inspector" class="bg-indigo-900/20 p-6 rounded-3xl border border-indigo-500/30 hidden">
+            <h3 class="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-4 italic underline">Component Interaction Settings</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] text-slate-400 block mb-1">CONTENT TEXT</label>
+                    <label class="text-[10px] text-slate-400 block mb-1">BUTTON DESTINATION (ACTION)</label>
+                    <select id="editAction" onchange="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-xs border border-slate-700">
+                        <option value="none">No Action (Static)</option>
+                        <option value="0">Go to Home Screen</option>
+                        <option value="1">Go to Screen 2</option>
+                        <option value="2">Go to Screen 3</option>
+                        <option value="3">Go to Screen 4</option>
+                        <option value="4">Go to Screen 5</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">LABEL TEXT</label>
                     <input type="text" id="editLabel" oninput="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-sm border border-slate-700 outline-none">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] text-slate-400 block mb-1">SIZE (PADDING)</label>
-                        <select id="editPadding" onchange="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-xs border border-slate-700">
-                            <option value="p-2">Small</option>
-                            <option value="p-6" selected>Medium</option>
-                            <option value="p-10">Large</option>
-                            <option value="p-16">Extra Large</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-slate-400 block mb-1">TEXT SCALE</label>
-                        <select id="editText" onchange="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-xs border border-slate-700">
-                            <option value="text-sm">Tiny</option>
-                            <option value="text-base">Normal</option>
-                            <option value="text-2xl">Large</option>
-                            <option value="text-4xl">Huge</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="deselect()" class="w-full text-[10px] text-indigo-400 font-bold uppercase mt-2">Deselect & Save</button>
-            </div>
-        </div>
-
-        <div class="bg-slate-900/50 p-6 rounded-3xl border border-slate-800">
-            <h3 class="text-slate-500 font-bold text-[10px] uppercase tracking-widest mb-2">Reference Guide</h3>
-            <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-400">
-                <div class="bg-slate-950 p-2 rounded">"Header"</div>
-                <div class="bg-slate-950 p-2 rounded">"Button"</div>
-                <div class="bg-slate-950 p-2 rounded">"Section"</div>
-                <div class="bg-slate-950 p-2 rounded">"Text"</div>
+                <button onclick="deselect()" class="w-full text-[10px] text-indigo-400 font-bold uppercase py-2 border border-indigo-500/30 rounded-lg">Apply & Close</button>
             </div>
         </div>
     </div>
 
     <div class="lg:col-span-4 space-y-4">
-        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">Production HTML Source</label>
-        <pre class="code-pane"><code id="codeDisplay" class="language-html">&lt;!-- Select a component to see its specific code --&gt;</code></pre>
-        
-        <div class="p-6 bg-emerald-900/10 border border-emerald-500/20 rounded-3xl">
-            <h4 class="text-emerald-400 font-bold text-xs mb-2">UI/UX TIP</h4>
-            <p class="text-[11px] text-slate-400 leading-relaxed">Click any item on the phone to edit its properties. Use the <b>Padding</b> setting to create "White Space" in your design.</p>
+        <div class="p-6 bg-slate-900 border border-slate-800 rounded-3xl">
+            <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-widest">Logic & Flow</h4>
+            <div class="text-[11px] text-slate-400 space-y-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Prototyping Mode: <b>Active</b></span>
+                </div>
+                <p>Buttons with assigned screens will "teleport" the user when clicked in the phone frame.</p>
+                <pre class="code-pane"><code id="codeDisplay" class="language-html"></code></pre>
+            </div>
         </div>
+        <button onclick="resetApp()" class="w-full text-slate-600 hover:text-red-500 font-bold text-[10px] uppercase">Reset Full Project</button>
     </div>
 
     <div class="lg:col-span-4 flex flex-col items-center">
         <div class="phone-viewport" id="canvas">
-            <div class="mt-40 p-12 text-center text-slate-400 italic text-sm">Build or upload to start.</div>
-        </div>
-        <button onclick="resetApp()" class="mt-4 text-[10px] text-slate-600 hover:text-red-500 font-bold">WIPE PROJECT</button>
+            </div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
 <script>
-    let projectItems = [];
-    let selectedIndex = null;
+    let activeScreenIndex = 0;
+    let selectedCompId = null;
+    // Data structure: 5 arrays, one for each screen
+    let projectScreens = [[], [], [], [], []];
+
+    function switchScreen(index) {
+        activeScreenIndex = index;
+        selectedCompId = null;
+        document.getElementById('inspector').classList.add('hidden');
+        
+        // Update Tabs UI
+        for(let i=0; i<5; i++) {
+            document.getElementById(`tab-${i}`).classList.toggle('tab-active', i === index);
+        }
+        document.getElementById('currentScreenName').textContent = index === 0 ? "Home" : "Screen " + (index + 1);
+        render();
+    }
 
     function render() {
         const canvas = document.getElementById('canvas');
         canvas.innerHTML = "";
         
-        projectItems.forEach((item, i) => {
+        projectScreens[activeScreenIndex].forEach((item, i) => {
             const div = document.createElement('div');
-            div.className = `ui-component ${selectedIndex === i ? 'selected' : ''}`;
-            div.onclick = (e) => { e.stopPropagation(); selectComponent(i); };
-            
-            // Build visual representation based on object data
-            let innerHTML = "";
-            if(item.type === 'Header') innerHTML = `<h1 class="${item.textSize} font-black ${item.padding} bg-white border-b text-slate-900">${item.label}</h1>`;
-            else if(item.type === 'Button') innerHTML = `<div class="${item.padding}"><button class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg ${item.textSize}">${item.label}</button></div>`;
-            else if(item.type === 'Section') innerHTML = `<div class="m-4 ${item.padding} rounded-3xl bg-slate-50 border border-slate-200 shadow-sm"><h3 class="font-bold text-slate-400 text-[10px] mb-1">SECTION</h3><p class="${item.textSize} text-slate-800">${item.label}</p></div>`;
-            else if(item.type === 'Image') innerHTML = `<div class="${item.padding}"><img src="${item.src}" class="w-full rounded-2xl shadow-xl"></div>`;
-            else innerHTML = `<p class="${item.padding} ${item.textSize} text-slate-600">${item.label}</p>`;
+            div.className = `ui-component ${selectedCompId === i ? 'selected' : ''}`;
+            div.onclick = (e) => {
+                if(item.action !== 'none') {
+                    switchScreen(parseInt(item.action));
+                } else {
+                    selectComponent(i);
+                }
+                e.stopPropagation();
+            };
 
-            div.innerHTML = `
-                ${selectedIndex === i ? `
-                <div class="nudge-controls">
-                    <button class="control-btn" onclick="event.stopPropagation(); move(${i}, -1)">▲</button>
-                    <button class="control-btn" onclick="event.stopPropagation(); move(${i}, 1)">▼</button>
-                    <button class="control-btn bg-red-500/20" onclick="event.stopPropagation(); remove(${i})">✕</button>
-                </div>` : ''}
-                ${innerHTML}
-            `;
+            let content = "";
+            if(item.type === 'Button') {
+                content = `<div class="p-4"><button class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg">${item.label}</button></div>`;
+            } else if(item.type === 'Header') {
+                content = `<h1 class="text-2xl font-black p-6 bg-white border-b text-slate-900">${item.label}</h1>`;
+            } else {
+                content = `<p class="p-6 text-slate-600">${item.label}</p>`;
+            }
+
+            div.innerHTML = content;
             canvas.appendChild(div);
         });
 
@@ -134,81 +143,69 @@
     }
 
     function selectComponent(i) {
-        selectedIndex = i;
-        const item = projectItems[i];
-        const inspector = document.getElementById('inspector');
-        inspector.classList.remove('hidden');
-        
-        document.getElementById('editLabel').value = item.label || "Image Asset";
-        document.getElementById('editPadding').value = item.padding;
-        document.getElementById('editText').value = item.textSize;
-        
+        selectedCompId = i;
+        const item = projectScreens[activeScreenIndex][i];
+        document.getElementById('inspector').classList.remove('hidden');
+        document.getElementById('editLabel').value = item.label;
+        document.getElementById('editAction').value = item.action;
         render();
     }
 
     function updateSelected() {
-        if (selectedIndex === null) return;
-        projectItems[selectedIndex].label = document.getElementById('editLabel').value;
-        projectItems[selectedIndex].padding = document.getElementById('editPadding').value;
-        projectItems[selectedIndex].textSize = document.getElementById('editText').value;
+        if(selectedCompId === null) return;
+        const item = projectScreens[activeScreenIndex][selectedCompId];
+        item.label = document.getElementById('editLabel').value;
+        item.action = document.getElementById('editAction').value;
         render();
     }
 
     function deselect() {
-        selectedIndex = null;
+        selectedCompId = null;
         document.getElementById('inspector').classList.add('hidden');
         render();
     }
 
     function addComponent() {
         const val = document.getElementById('cmdInput').value;
-        if (!val) return;
+        if(!val) return;
         const match = val.match(/"([^"]+)"|'([^']+)'/);
         const name = match ? (match[1] || match[2]) : "Untitled";
 
         let type = "Text";
-        if (val.toLowerCase().includes('header')) type = "Header";
-        else if (val.toLowerCase().includes('button')) type = "Button";
-        else if (val.toLowerCase().includes('section')) type = "Section";
+        if(val.toLowerCase().includes('header')) type = "Header";
+        else if(val.toLowerCase().includes('button')) type = "Button";
 
-        projectItems.push({
+        projectScreens[activeScreenIndex].push({
             type: type,
             label: name,
-            padding: 'p-6',
-            textSize: type === 'Header' ? 'text-2xl' : 'text-base'
+            action: 'none'
         });
-        
+
         document.getElementById('cmdInput').value = "";
         render();
     }
 
     function updateCode() {
         const codeDisplay = document.getElementById('codeDisplay');
-        const code = projectItems.map(item => {
-            if(item.type === 'Image') return `<img src="asset.png" class="rounded-xl ${item.padding}">`;
-            return `<div class="${item.type} ${item.padding} ${item.textSize}">${item.label}</div>`;
+        const code = projectScreens[activeScreenIndex].map(item => {
+            const actionAttr = item.action !== 'none' ? ` onclick="goTo(${item.action})"` : "";
+            return `<${item.type}${actionAttr}>${item.label}</${item.type}>`;
         }).join('\n');
         codeDisplay.textContent = code || "";
         Prism.highlightElement(codeDisplay);
     }
 
-    function move(i, dir) {
-        const to = i + dir;
-        if (to >= 0 && to < projectItems.length) {
-            [projectItems[i], projectItems[to]] = [projectItems[to], projectItems[i]];
-            selectedIndex = to;
-            render();
+    function resetApp() {
+        if(confirm("Wipe all 5 screens?")) {
+            projectScreens = [[], [], [], [], []];
+            switchScreen(0);
         }
     }
 
     function remove(i) {
-        projectItems.splice(i, 1);
-        selectedIndex = null;
-        document.getElementById('inspector').classList.add('hidden');
-        render();
+        projectScreens[activeScreenIndex].splice(i, 1);
+        deselect();
     }
-
-    function resetApp() { projectItems = []; render(); }
 </script>
 </body>
 </html>
