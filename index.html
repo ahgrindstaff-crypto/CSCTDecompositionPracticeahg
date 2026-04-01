@@ -3,107 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Architect: 5-Screen Editor</title>
+    <title>App Architect: Pro Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
         .phone-viewport {
-            width: 380px; height: 680px; background: white; border-radius: 48px; border: 12px solid #0f172a;
-            position: relative; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            width: 380px; height: 680px; background: white; border-radius: 52px; border: 14px solid #0f172a;
+            position: relative; overflow-y: auto; box-shadow: 0 30px 70px rgba(0,0,0,0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .grid-bg {
             background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px), linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        .code-pane { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; font-size: 11px; height: 140px; overflow: auto; padding: 1rem; border-radius: 12px; }
-        .tab-active { background: #6366f1 !important; color: white !important; border-color: #818cf8 !important; }
+        .code-pane { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; font-size: 11px; height: 160px; overflow: auto; padding: 1rem; border-radius: 16px; border: 1px solid #30363d; }
+        .tab-active { background: #6366f1 !important; color: white !important; transform: scale(1.05); }
         .ui-component { position: relative; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
-        .ui-component:hover { border: 2px dashed #6366f1; background: rgba(99,102,241,0.05); }
-        .ui-component.selected { border: 2px solid #6366f1; background: rgba(99,102,241,0.1); }
-        .command-key { font-family: 'Fira Code', monospace; background: #1e293b; color: #818cf8; padding: 2px 4px; border-radius: 4px; font-size: 10px; }
+        .edit-mode .ui-component:hover { border: 2px dashed #6366f1; background: rgba(99,102,241,0.05); }
+        .edit-mode .ui-component.selected { border: 2px solid #6366f1; background: rgba(99,102,241,0.1); }
+        /* Preview Mode adjustments */
+        .preview-mode .phone-viewport { border-color: #334155; transform: scale(1.05); }
+        .preview-mode .ui-component { border: none !important; background: none !important; }
     </style>
 </head>
-<body class="bg-[#0b0e14] text-slate-200 p-4 min-h-screen font-sans">
+<body class="bg-[#0b0e14] text-slate-200 p-6 min-h-screen font-sans overflow-x-hidden">
 
-<div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div id="mainContainer" class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 transition-opacity duration-500">
     
-    <div class="lg:col-span-3 space-y-4">
-        <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800 shadow-xl">
-            <h3 class="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-4">Command Key</h3>
-            <ul class="text-[11px] text-slate-400 space-y-3">
-                <li><span class="command-key">Header</span> "Title"</li>
-                <li><span class="command-key">Button</span> "Label"</li>
-                <li><span class="command-key">Section</span> "Content"</li>
-                <li><span class="command-key">Text</span> "Message"</li>
-            </ul>
+    <div id="editorSidebar" class="lg:col-span-3 space-y-4">
+        <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-2xl">
+            <h3 class="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-6">Interactive Layers</h3>
+            <div class="space-y-2">
+                <button onclick="switchScreen(0)" id="tab-0" class="tab-active w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">🏠 Home Screen</button>
+                <button onclick="switchScreen(1)" id="tab-1" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 2</button>
+                <button onclick="switchScreen(2)" id="tab-2" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 3</button>
+                <button onclick="switchScreen(3)" id="tab-3" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 4</button>
+                <button onclick="switchScreen(4)" id="tab-4" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 5</button>
+            </div>
         </div>
-
-        <div class="bg-slate-900 p-5 rounded-3xl border border-slate-800 shadow-xl">
-            <h3 class="text-white font-bold text-xs mb-3">App Layers</h3>
-            <div class="grid grid-cols-1 gap-2" id="screenTabs">
-                <button onclick="switchScreen(0)" id="tab-0" class="tab-active w-full text-left px-4 py-2 bg-slate-800 rounded-lg text-[11px] font-bold border border-transparent transition-all">🏠 Home Screen</button>
-                <button onclick="switchScreen(1)" id="tab-1" class="w-full text-left px-4 py-2 bg-slate-800 rounded-lg text-[11px] font-bold border border-transparent transition-all">📄 Screen 2</button>
-                <button onclick="switchScreen(2)" id="tab-2" class="w-full text-left px-4 py-2 bg-slate-800 rounded-lg text-[11px] font-bold border border-transparent transition-all">📄 Screen 3</button>
-                <button onclick="switchScreen(3)" id="tab-3" class="w-full text-left px-4 py-2 bg-slate-800 rounded-lg text-[11px] font-bold border border-transparent transition-all">📄 Screen 4</button>
-                <button onclick="switchScreen(4)" id="tab-4" class="w-full text-left px-4 py-2 bg-slate-800 rounded-lg text-[11px] font-bold border border-transparent transition-all">📄 Screen 5</button>
+        
+        <div class="bg-slate-900/50 p-6 rounded-[2rem] border border-slate-800">
+            <h4 class="text-[10px] font-bold text-slate-500 uppercase mb-4">Command Key</h4>
+            <div class="grid grid-cols-2 gap-2 text-[10px]">
+                <div class="p-2 bg-slate-950 rounded">Header</div>
+                <div class="p-2 bg-slate-950 rounded">Button</div>
+                <div class="p-2 bg-slate-950 rounded">Section</div>
+                <div class="p-2 bg-slate-950 rounded">Text</div>
             </div>
         </div>
     </div>
 
-    <div class="lg:col-span-5 space-y-4">
-        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-2xl">
-            <h2 class="text-xl font-black mb-4 uppercase tracking-tighter">APP ARCHITECT <span class="text-indigo-500 italic">PRO</span></h2>
-            <div class="flex gap-2">
-                <input type="text" id="cmdInput" placeholder='Add "Header" named "My App"' 
-                    class="flex-1 p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-white text-sm">
-                <button onclick="addComponent()" class="bg-indigo-600 hover:bg-indigo-500 px-6 rounded-xl font-black text-xs transition-all">GENERATE</button>
+    <div id="builderCenter" class="lg:col-span-5 space-y-6">
+        <div class="flex justify-between items-center bg-slate-900 p-4 rounded-3xl border border-slate-800">
+            <h2 class="text-xl font-black px-4">APP ARCHITECT</h2>
+            <div class="flex bg-slate-950 p-1 rounded-2xl border border-slate-800">
+                <button id="editBtn" onclick="setMode('edit')" class="px-6 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">EDIT</button>
+                <button id="previewBtn" onclick="setMode('preview')" class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500">PLAY</button>
             </div>
         </div>
 
-        <div id="inspector" class="bg-indigo-900/20 p-6 rounded-3xl border border-indigo-500/30 hidden">
-            <h3 class="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-4">Edit Component</h3>
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="col-span-2">
-                    <label class="text-[9px] text-slate-500 uppercase block mb-1">Text Content</label>
-                    <input type="text" id="editLabel" oninput="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-sm border border-slate-700 outline-none">
-                </div>
-                <div>
-                    <label class="text-[9px] text-slate-500 uppercase block mb-1">Padding (Size)</label>
-                    <select id="editPadding" onchange="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-[11px] border border-slate-700">
-                        <option value="p-2">Small</option>
-                        <option value="p-6" selected>Medium</option>
-                        <option value="p-12">Large</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[9px] text-slate-500 uppercase block mb-1">Button Action</label>
-                    <select id="editAction" onchange="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-[11px] border border-slate-700">
-                        <option value="none">Static</option>
-                        <option value="0">Go Home</option>
-                        <option value="1">Screen 2</option>
-                        <option value="2">Screen 3</option>
-                        <option value="3">Screen 4</option>
-                        <option value="4">Screen 5</option>
-                    </select>
+        <div id="editorTools" class="space-y-6">
+            <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl">
+                <div class="flex gap-2">
+                    <input type="text" id="cmdInput" placeholder='Add "Button" named "Settings"...' 
+                        class="flex-1 p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-white">
+                    <button onclick="addComponent()" class="bg-indigo-600 hover:bg-indigo-500 px-8 rounded-2xl font-black text-xs">BUILD</button>
                 </div>
             </div>
-            <div class="flex gap-2">
-                <button onclick="move(-1)" class="flex-1 bg-slate-800 py-1 rounded text-[10px] font-bold">MOVE UP</button>
-                <button onclick="move(1)" class="flex-1 bg-slate-800 py-1 rounded text-[10px] font-bold">MOVE DOWN</button>
-                <button onclick="removeComp()" class="flex-1 bg-red-900/40 py-1 rounded text-[10px] font-bold">DELETE</button>
-            </div>
-        </div>
 
-        <div class="space-y-1">
+            <div id="inspector" class="bg-indigo-900/10 p-8 rounded-[2rem] border border-indigo-500/20 hidden">
+                <h3 class="text-indigo-400 font-black text-[10px] uppercase tracking-[0.3em] mb-6">Component Inspector</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="col-span-2">
+                        <label class="text-[9px] text-slate-500 uppercase mb-2 block">Display Text</label>
+                        <input type="text" id="editLabel" oninput="updateSelected()" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-slate-500 uppercase mb-2 block">Action (Navigation)</label>
+                        <select id="editAction" onchange="updateSelected()" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+                            <option value="none">Static Element</option>
+                            <option value="0">Link to Home</option>
+                            <option value="1">Link to Screen 2</option>
+                            <option value="2">Link to Screen 3</option>
+                            <option value="3">Link to Screen 4</option>
+                            <option value="4">Link to Screen 5</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-slate-500 uppercase mb-2 block">Padding (Size)</label>
+                        <select id="editPadding" onchange="updateSelected()" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs">
+                            <option value="p-4">Small</option>
+                            <option value="p-8" selected>Medium</option>
+                            <option value="p-16">Large</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-6">
+                    <button onclick="move(-1)" class="flex-1 py-2 bg-slate-800 rounded-lg text-[10px] font-bold">MOVE UP</button>
+                    <button onclick="move(1)" class="flex-1 py-2 bg-slate-800 rounded-lg text-[10px] font-bold">MOVE DOWN</button>
+                    <button onclick="removeComp()" class="flex-1 py-2 bg-red-900/30 text-red-400 rounded-lg text-[10px] font-bold uppercase">Delete</button>
+                </div>
+            </div>
+
             <pre class="code-pane"><code id="codeDisplay" class="language-html"></code></pre>
-            <div class="flex justify-between px-2">
-                <span class="text-[9px] text-slate-600 uppercase font-bold">Production HTML</span>
-                <button onclick="resetAll()" class="text-[9px] text-slate-700 hover:text-red-500 font-bold uppercase">Wipe Project</button>
-            </div>
+        </div>
+        
+        <div id="previewNotice" class="hidden p-8 bg-indigo-600/20 border border-indigo-500/40 rounded-[2rem] text-center">
+            <h3 class="text-indigo-400 font-bold mb-2 uppercase text-xs tracking-widest">Preview Mode Active</h3>
+            <p class="text-slate-400 text-sm italic">Controls are hidden. Test your app on the right!</p>
+            <button onclick="setMode('edit')" class="mt-4 text-xs font-black underline decoration-2 underline-offset-4">RETURN TO EDITOR</button>
         </div>
     </div>
 
     <div class="lg:col-span-4 flex flex-col items-center">
-        <div class="phone-viewport" id="canvas">
-            <div class="mt-40 p-12 text-center text-slate-400 italic text-sm">Select a screen or add a component.</div>
+        <div class="phone-viewport edit-mode grid-bg" id="canvas">
+            <div class="mt-40 p-12 text-center text-slate-400 italic text-sm">Welcome! Add your first component.</div>
         </div>
     </div>
 </div>
@@ -111,14 +125,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
 
 <script>
+    let currentMode = 'edit';
     let activeScreen = 0;
     let selectedId = null;
-    let project = [[], [], [], [], []]; // 5 Screen arrays
+    let project = [[], [], [], [], []];
+
+    function setMode(mode) {
+        currentMode = mode;
+        selectedId = null;
+        
+        // UI Updates
+        document.getElementById('editBtn').className = mode === 'edit' ? 'px-6 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white' : 'px-6 py-2 rounded-xl text-xs font-bold text-slate-500';
+        document.getElementById('previewBtn').className = mode === 'preview' ? 'px-6 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white' : 'px-6 py-2 rounded-xl text-xs font-bold text-slate-500';
+        
+        document.getElementById('canvas').className = `phone-viewport ${mode}-mode ${mode === 'edit' ? 'grid-bg' : ''}`;
+        document.getElementById('editorSidebar').classList.toggle('opacity-20', mode === 'preview');
+        document.getElementById('editorTools').classList.toggle('hidden', mode === 'preview');
+        document.getElementById('previewNotice').classList.toggle('hidden', mode === 'edit');
+        document.getElementById('inspector').classList.add('hidden');
+        
+        render();
+    }
 
     function switchScreen(idx) {
         activeScreen = idx;
         selectedId = null;
-        document.getElementById('inspector').classList.add('hidden');
+        if(currentMode === 'edit') document.getElementById('inspector').classList.add('hidden');
         for(let i=0; i<5; i++) document.getElementById(`tab-${i}`).classList.toggle('tab-active', i === idx);
         render();
     }
@@ -133,30 +165,31 @@
             
             div.onclick = (e) => {
                 e.stopPropagation();
-                if(item.action !== 'none' && selectedId !== i) {
+                if(currentMode === 'preview' && item.action !== 'none') {
                     switchScreen(parseInt(item.action));
-                } else {
+                } else if(currentMode === 'edit') {
                     selectComp(i);
                 }
             };
 
             let html = "";
-            const textClass = item.type === 'Header' ? 'text-2xl font-black' : 'text-base';
-            
             if(item.type === 'Button') {
-                html = `<div class="${item.padding}"><button class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">${item.label}</button></div>`;
+                html = `<div class="${item.padding}"><button class="w-full bg-indigo-600 text-white p-5 rounded-2xl font-bold shadow-lg active:scale-95 transition-all text-sm uppercase tracking-widest">${item.label}</button></div>`;
             } else if(item.type === 'Header') {
-                html = `<h1 class="${textClass} ${item.padding} bg-white border-b text-slate-900">${item.label}</h1>`;
+                html = `<h1 class="text-3xl font-black ${item.padding} bg-white border-b-4 border-slate-50 text-slate-900">${item.label}</h1>`;
             } else if(item.type === 'Section') {
-                html = `<div class="m-4 ${item.padding} rounded-3xl bg-slate-50 border border-slate-200 shadow-sm"><h3 class="text-[9px] text-slate-400 font-bold mb-1 italic">LAYER COMPONENT</h3><p class="text-slate-800">${item.label}</p></div>`;
+                html = `<div class="m-4 ${item.padding} rounded-[2rem] bg-slate-50 border border-slate-200 shadow-sm"><h3 class="text-[9px] text-slate-400 font-bold mb-2 tracking-tighter">APP SECTION</h3><p class="text-slate-800 font-medium">${item.label}</p></div>`;
             } else {
-                html = `<p class="${item.padding} text-slate-600">${item.label}</p>`;
+                html = `<p class="${item.padding} text-slate-600 leading-relaxed font-medium">${item.label}</p>`;
             }
 
             div.innerHTML = html;
             canvas.appendChild(div);
         });
 
+        if(project[activeScreen].length === 0) {
+            canvas.innerHTML = `<div class="mt-40 p-12 text-center text-slate-400 italic text-sm">Screen ${activeScreen + 1} is empty.</div>`;
+        }
         updateCode();
     }
 
@@ -183,14 +216,14 @@
         const val = document.getElementById('cmdInput').value;
         if(!val) return;
         const match = val.match(/"([^"]+)"|'([^']+)'/);
-        const name = match ? (match[1] || match[2]) : "Untitled";
+        const name = match ? (match[1] || match[2]) : "Untitled Content";
 
         let type = "Text";
         if(val.toLowerCase().includes('header')) type = "Header";
         else if(val.toLowerCase().includes('button')) type = "Button";
         else if(val.toLowerCase().includes('section')) type = "Section";
 
-        project[activeScreen].push({ type, label: name, padding: 'p-6', action: 'none' });
+        project[activeScreen].push({ type, label: name, padding: 'p-8', action: 'none' });
         document.getElementById('cmdInput').value = "";
         render();
     }
@@ -198,8 +231,8 @@
     function updateCode() {
         const display = document.getElementById('codeDisplay');
         const code = project[activeScreen].map(item => {
-            const actionCode = item.action !== 'none' ? ` onclick="nav(${item.action})"` : "";
-            return `<${item.type}${actionCode} class="${item.padding}">${item.label}</${item.type}>`;
+            const act = item.action !== 'none' ? ` action="nav(${item.action})"` : "";
+            return `<${item.type}${act} class="${item.padding}">${item.label}</${item.type}>`;
         }).join('\n');
         display.textContent = code || "";
         Prism.highlightElement(display);
@@ -222,8 +255,6 @@
         document.getElementById('inspector').classList.add('hidden');
         render();
     }
-
-    function resetAll() { if(confirm("Clear all screens?")) { project = [[], [], [], [], []]; switchScreen(0); } }
 </script>
 </body>
 </html>
