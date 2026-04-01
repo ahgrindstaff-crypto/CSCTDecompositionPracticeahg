@@ -3,119 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Architect: Pro Builder</title>
+    <title>App Architect: Professional Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
         .phone-viewport {
-            width: 380px;
-            height: 680px;
-            background: white;
-            border-radius: 48px;
-            border: 12px solid #0f172a;
-            position: relative;
-            overflow-y: auto;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-            background-image: 
-                linear-gradient(to right, #f1f5f9 1px, transparent 1px),
-                linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+            width: 380px; height: 680px; background: white; border-radius: 48px; border: 12px solid #0f172a;
+            position: relative; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px), linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        .code-pane {
-            background: #0d1117;
-            color: #c9d1d9;
-            font-family: 'Fira Code', monospace;
-            font-size: 12px;
-            border-radius: 12px;
-            height: 250px;
-            overflow: auto;
-            padding: 1.2rem;
-            border: 1px solid #30363d;
-        }
-        .command-key {
-            font-family: 'Fira Code', monospace;
-            background: #1e293b;
-            color: #818cf8;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-        }
-        .ui-component { position: relative; cursor: pointer; transition: 0.2s; }
-        .ui-component:hover { outline: 2px solid #6366f1; background: rgba(99,102,241,0.05); }
-        .nudge-controls {
-            position: absolute; top: 4px; right: 4px; background: #6366f1;
-            display: flex; gap: 2px; padding: 2px; border-radius: 6px; z-index: 30; opacity: 0;
-        }
-        .ui-component:hover .nudge-controls { opacity: 1; }
+        .code-pane { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; font-size: 11px; border-radius: 12px; height: 180px; overflow: auto; padding: 1rem; border: 1px solid #30363d; }
+        .ui-component { position: relative; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
+        .ui-component:hover { border: 2px dashed #6366f1; background: rgba(99,102,241,0.05); }
+        .ui-component.selected { border: 2px solid #6366f1; background: rgba(99,102,241,0.1); }
+        .nudge-controls { position: absolute; top: -30px; right: 0; background: #6366f1; display: flex; gap: 2px; padding: 2px; border-radius: 6px; z-index: 50; }
         .control-btn { color: white; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 10px; }
     </style>
 </head>
-<body class="bg-[#0b0e14] text-slate-200 p-6 min-h-screen font-sans">
+<body class="bg-[#0b0e14] text-slate-200 p-4 min-h-screen font-sans">
 
-<div class="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
     
-    <div class="lg:col-span-3 space-y-6">
-        <div class="bg-slate-900/50 p-6 rounded-3xl border border-slate-800 shadow-xl">
-            <h3 class="text-indigo-400 font-black text-xs uppercase tracking-[0.2em] mb-6">Command Reference</h3>
-            
-            <div class="space-y-6">
-                <section>
-                    <p class="text-white text-sm font-bold mb-2">🏗️ Structure</p>
-                    <ul class="text-xs text-slate-400 space-y-3">
-                        <li><span class="command-key">Header</span> - Creates a bold top title.</li>
-                        <li><span class="command-key">Section</span> - Adds a content block.</li>
-                        <li><span class="command-key">Text</span> - Simple paragraph of info.</li>
-                    </ul>
-                </section>
+    <div class="lg:col-span-4 space-y-4">
+        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-xl">
+            <h2 class="text-xl font-black mb-4 uppercase tracking-tighter">🚀 Create</h2>
+            <div class="flex flex-col gap-3">
+                <input type="text" id="cmdInput" placeholder='Add "Header" named "App Title"...' 
+                    class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-white">
+                <button onclick="addComponent()" class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-black transition-all text-sm">BUILD NEW</button>
+            </div>
+        </div>
 
-                <section>
-                    <p class="text-white text-sm font-bold mb-2">⚡ Interaction</p>
-                    <ul class="text-xs text-slate-400 space-y-3">
-                        <li><span class="command-key">Button</span> - Adds a clickable button.</li>
-                        <li><span class="command-key">Input</span> - (Coming Soon) Data fields.</li>
-                    </ul>
-                </section>
+        <div id="inspector" class="bg-indigo-900/20 p-6 rounded-3xl border border-indigo-500/30 shadow-xl hidden">
+            <h3 class="text-indigo-400 font-black text-xs uppercase tracking-widest mb-4">Component Inspector</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">CONTENT TEXT</label>
+                    <input type="text" id="editLabel" oninput="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-sm border border-slate-700 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-slate-400 block mb-1">SIZE (PADDING)</label>
+                        <select id="editPadding" onchange="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-xs border border-slate-700">
+                            <option value="p-2">Small</option>
+                            <option value="p-6" selected>Medium</option>
+                            <option value="p-10">Large</option>
+                            <option value="p-16">Extra Large</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-400 block mb-1">TEXT SCALE</label>
+                        <select id="editText" onchange="updateSelected()" class="w-full p-2 bg-slate-900 rounded-lg text-xs border border-slate-700">
+                            <option value="text-sm">Tiny</option>
+                            <option value="text-base">Normal</option>
+                            <option value="text-2xl">Large</option>
+                            <option value="text-4xl">Huge</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="deselect()" class="w-full text-[10px] text-indigo-400 font-bold uppercase mt-2">Deselect & Save</button>
+            </div>
+        </div>
 
-                <section>
-                    <p class="text-white text-sm font-bold mb-2">💡 Syntax Tip</p>
-                    <p class="text-[11px] leading-relaxed text-slate-500 italic">
-                        Use double quotes to keep your casing:<br>
-                        <span class="text-indigo-300">Add "Header" named "Mr. G"</span>
-                    </p>
-                </section>
+        <div class="bg-slate-900/50 p-6 rounded-3xl border border-slate-800">
+            <h3 class="text-slate-500 font-bold text-[10px] uppercase tracking-widest mb-2">Reference Guide</h3>
+            <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-400">
+                <div class="bg-slate-950 p-2 rounded">"Header"</div>
+                <div class="bg-slate-950 p-2 rounded">"Button"</div>
+                <div class="bg-slate-950 p-2 rounded">"Section"</div>
+                <div class="bg-slate-950 p-2 rounded">"Text"</div>
             </div>
         </div>
     </div>
 
-    <div class="lg:col-span-5 flex flex-col gap-6">
-        <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-2xl">
-            <h2 class="text-2xl font-black mb-4">APP ARCHITECT <span class="text-indigo-500 italic">PRO</span></h2>
-            <div class="flex flex-col gap-4">
-                <input type="text" id="cmdInput" placeholder='Type a command from the list...' 
-                    class="w-full p-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 text-lg text-white">
-                <div class="flex gap-2">
-                    <button onclick="addComponent()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-black transition-all">BUILD COMPONENT</button>
-                    <label class="bg-emerald-600 hover:bg-emerald-500 px-4 py-3 rounded-xl font-bold cursor-pointer transition-all flex items-center justify-center">
-                        <span>📷 Image</span>
-                        <input type="file" class="hidden" accept="image/*" onchange="handleFile(this)">
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-2">
-            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">Live HTML/Tailwind Output</label>
-            <pre class="code-pane"><code id="codeDisplay" class="language-html">&lt;!-- Code appears as you build --&gt;</code></pre>
-            <button onclick="resetApp()" class="text-[10px] text-slate-600 hover:text-red-500 transition-colors px-2 font-bold uppercase tracking-tighter">Clear Workspace</button>
+    <div class="lg:col-span-4 space-y-4">
+        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">Production HTML Source</label>
+        <pre class="code-pane"><code id="codeDisplay" class="language-html">&lt;!-- Select a component to see its specific code --&gt;</code></pre>
+        
+        <div class="p-6 bg-emerald-900/10 border border-emerald-500/20 rounded-3xl">
+            <h4 class="text-emerald-400 font-bold text-xs mb-2">UI/UX TIP</h4>
+            <p class="text-[11px] text-slate-400 leading-relaxed">Click any item on the phone to edit its properties. Use the <b>Padding</b> setting to create "White Space" in your design.</p>
         </div>
     </div>
 
     <div class="lg:col-span-4 flex flex-col items-center">
         <div class="phone-viewport" id="canvas">
-            <div id="welcome" class="mt-40 p-12 text-center">
-                <p class="text-slate-400 italic text-sm">Use the reference guide on the left to start your UI.</p>
-            </div>
+            <div class="mt-40 p-12 text-center text-slate-400 italic text-sm">Build or upload to start.</div>
         </div>
+        <button onclick="resetApp()" class="mt-4 text-[10px] text-slate-600 hover:text-red-500 font-bold">WIPE PROJECT</button>
     </div>
 </div>
 
@@ -123,17 +99,7 @@
 
 <script>
     let projectItems = [];
-
-    function updateEditor() {
-        const display = document.getElementById('codeDisplay');
-        if (projectItems.length === 0) {
-            display.textContent = "";
-        } else {
-            const code = projectItems.map(item => item.code.trim()).join('\n');
-            display.textContent = code;
-        }
-        Prism.highlightElement(display);
-    }
+    let selectedIndex = null;
 
     function render() {
         const canvas = document.getElementById('canvas');
@@ -141,93 +107,108 @@
         
         projectItems.forEach((item, i) => {
             const div = document.createElement('div');
-            div.className = "ui-component";
+            div.className = `ui-component ${selectedIndex === i ? 'selected' : ''}`;
+            div.onclick = (e) => { e.stopPropagation(); selectComponent(i); };
+            
+            // Build visual representation based on object data
+            let innerHTML = "";
+            if(item.type === 'Header') innerHTML = `<h1 class="${item.textSize} font-black ${item.padding} bg-white border-b text-slate-900">${item.label}</h1>`;
+            else if(item.type === 'Button') innerHTML = `<div class="${item.padding}"><button class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg ${item.textSize}">${item.label}</button></div>`;
+            else if(item.type === 'Section') innerHTML = `<div class="m-4 ${item.padding} rounded-3xl bg-slate-50 border border-slate-200 shadow-sm"><h3 class="font-bold text-slate-400 text-[10px] mb-1">SECTION</h3><p class="${item.textSize} text-slate-800">${item.label}</p></div>`;
+            else if(item.type === 'Image') innerHTML = `<div class="${item.padding}"><img src="${item.src}" class="w-full rounded-2xl shadow-xl"></div>`;
+            else innerHTML = `<p class="${item.padding} ${item.textSize} text-slate-600">${item.label}</p>`;
+
             div.innerHTML = `
+                ${selectedIndex === i ? `
                 <div class="nudge-controls">
-                    <button class="control-btn" onclick="move(${i}, -1)">▲</button>
-                    <button class="control-btn" onclick="move(${i}, 1)">▼</button>
-                    <button class="control-btn bg-red-500/20" onclick="remove(${i})">✕</button>
-                </div>
-                ${item.render}
+                    <button class="control-btn" onclick="event.stopPropagation(); move(${i}, -1)">▲</button>
+                    <button class="control-btn" onclick="event.stopPropagation(); move(${i}, 1)">▼</button>
+                    <button class="control-btn bg-red-500/20" onclick="event.stopPropagation(); remove(${i})">✕</button>
+                </div>` : ''}
+                ${innerHTML}
             `;
             canvas.appendChild(div);
         });
 
-        if (projectItems.length === 0) {
-            canvas.innerHTML = `<div class="mt-40 p-12 text-center text-slate-400 italic text-sm">Use the reference guide on the left to start your UI.</div>`;
-        }
-        updateEditor();
+        updateCode();
+    }
+
+    function selectComponent(i) {
+        selectedIndex = i;
+        const item = projectItems[i];
+        const inspector = document.getElementById('inspector');
+        inspector.classList.remove('hidden');
+        
+        document.getElementById('editLabel').value = item.label || "Image Asset";
+        document.getElementById('editPadding').value = item.padding;
+        document.getElementById('editText').value = item.textSize;
+        
+        render();
+    }
+
+    function updateSelected() {
+        if (selectedIndex === null) return;
+        projectItems[selectedIndex].label = document.getElementById('editLabel').value;
+        projectItems[selectedIndex].padding = document.getElementById('editPadding').value;
+        projectItems[selectedIndex].textSize = document.getElementById('editText').value;
+        render();
+    }
+
+    function deselect() {
+        selectedIndex = null;
+        document.getElementById('inspector').classList.add('hidden');
+        render();
     }
 
     function addComponent() {
         const val = document.getElementById('cmdInput').value;
         if (!val) return;
-
         const match = val.match(/"([^"]+)"|'([^']+)'/);
-        const name = match ? (match[1] || match[2]) : "Untitled Component";
+        const name = match ? (match[1] || match[2]) : "Untitled";
 
-        let newItem = {};
-        const lowVal = val.toLowerCase();
+        let type = "Text";
+        if (val.toLowerCase().includes('header')) type = "Header";
+        else if (val.toLowerCase().includes('button')) type = "Button";
+        else if (val.toLowerCase().includes('section')) type = "Section";
 
-        if (lowVal.includes('header')) {
-            newItem = {
-                code: `<h1 class="text-3xl font-black p-8 bg-white border-b-2 border-slate-100 text-slate-900">${name}</h1>`,
-                render: `<h1 class="text-3xl font-black p-8 bg-white border-b-2 border-slate-100 text-slate-900">${name}</h1>`
-            };
-        } else if (lowVal.includes('button')) {
-            newItem = {
-                code: `<button class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg">${name}</button>`,
-                render: `<div class="p-6"><button class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">${name}</button></div>`
-            };
-        } else if (lowVal.includes('section')) {
-            newItem = {
-                code: `<div class="m-6 p-6 rounded-3xl bg-slate-50 border border-slate-200"><h3 class="font-bold text-slate-800 uppercase text-xs mb-2">Section</h3><p class="text-slate-600">${name}</p></div>`,
-                render: `<div class="m-6 p-6 rounded-3xl bg-slate-50 border border-slate-200 shadow-sm"><h3 class="font-bold text-slate-800 uppercase text-xs mb-2">Section</h3><p class="text-slate-600">${name}</p></div>`
-            };
-        } else {
-            newItem = {
-                code: `<p class="px-8 py-4 text-slate-600 leading-relaxed">${name}</p>`,
-                render: `<p class="px-8 py-4 text-slate-600 leading-relaxed">${name}</p>`
-            };
-        }
-
-        projectItems.push(newItem);
-        render();
+        projectItems.push({
+            type: type,
+            label: name,
+            padding: 'p-6',
+            textSize: type === 'Header' ? 'text-2xl' : 'text-base'
+        });
+        
         document.getElementById('cmdInput').value = "";
+        render();
     }
 
-    function handleFile(input) {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                projectItems.push({
-                    code: `<img src="user_asset.png" class="w-full rounded-3xl shadow-xl">`,
-                    render: `<div class="p-6"><img src="${e.target.result}" class="w-full rounded-3xl shadow-xl"></div>`
-                });
-                render();
-            };
-            reader.readAsDataURL(file);
-        }
+    function updateCode() {
+        const codeDisplay = document.getElementById('codeDisplay');
+        const code = projectItems.map(item => {
+            if(item.type === 'Image') return `<img src="asset.png" class="rounded-xl ${item.padding}">`;
+            return `<div class="${item.type} ${item.padding} ${item.textSize}">${item.label}</div>`;
+        }).join('\n');
+        codeDisplay.textContent = code || "";
+        Prism.highlightElement(codeDisplay);
     }
 
     function move(i, dir) {
         const to = i + dir;
         if (to >= 0 && to < projectItems.length) {
             [projectItems[i], projectItems[to]] = [projectItems[to], projectItems[i]];
+            selectedIndex = to;
             render();
         }
     }
 
     function remove(i) {
         projectItems.splice(i, 1);
+        selectedIndex = null;
+        document.getElementById('inspector').classList.add('hidden');
         render();
     }
 
-    function resetApp() {
-        projectItems = [];
-        render();
-    }
+    function resetApp() { projectItems = []; render(); }
 </script>
 </body>
 </html>
