@@ -3,107 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Architect: Final Prototyper</title>
+    <title>App Architect | Mr. Grindstaff's Creations 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
         .phone-viewport {
             width: 380px; height: 680px; background: white; border-radius: 52px; border: 14px solid #0f172a;
-            position: relative; overflow-y: auto; box-shadow: 0 30px 70px rgba(0,0,0,0.5);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column;
+        }
+        #canvasContent { flex-grow: 1; overflow-y: auto; }
+        .cc-footer {
+            background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 10px;
+            text-align: center; font-size: 9px; color: #94a3b8; font-weight: bold;
+            letter-spacing: 0.05em; pointer-events: none;
         }
         .grid-bg {
             background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px), linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        .code-pane { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; font-size: 11px; height: 160px; overflow: auto; padding: 1rem; border-radius: 16px; border: 1px solid #30363d; }
-        .tab-active { background: #6366f1 !important; color: white !important; transform: scale(1.05); }
-        .ui-component { position: relative; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
-        .edit-mode .ui-component:hover { border: 2px dashed #6366f1; background: rgba(99,102,241,0.05); }
-        .edit-mode .ui-component.selected { border: 2px solid #6366f1; background: rgba(99,102,241,0.1); }
-        .preview-mode .phone-viewport { border-color: #334155; transform: scale(1.02); }
-        .preview-mode .ui-component { border: none !important; background: none !important; }
+        .code-pane { background: #0d1117; color: #c9d1d9; font-family: 'Fira Code', monospace; font-size: 11px; height: 140px; overflow: auto; padding: 1rem; border-radius: 16px; }
+        .tab-active { background: #6366f1 !important; color: white !important; }
+        .ui-component { position: relative; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+        .edit-mode .ui-component:hover { border: 2px dashed #6366f1; }
+        .edit-mode .ui-component.selected { border: 2px solid #6366f1; background: rgba(99,102,241,0.05); }
     </style>
 </head>
 <body class="bg-[#0b0e14] text-slate-200 p-6 min-h-screen font-sans">
 
 <div class="max-w-[1700px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
     
-    <div id="sidebar" class="lg:col-span-3 space-y-4">
+    <div class="lg:col-span-3 space-y-4">
         <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl">
-            <h3 class="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-4">Interactive Layers</h3>
+            <h3 class="text-indigo-400 font-black text-[10px] uppercase tracking-widest mb-4">Screens</h3>
             <div class="space-y-2" id="tabs">
-                <button onclick="switchScreen(0)" id="tab-0" class="tab-active w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">🏠 Home Screen</button>
+                <button onclick="switchScreen(0)" id="tab-0" class="tab-active w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">🏠 Home</button>
                 <button onclick="switchScreen(1)" id="tab-1" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 2</button>
                 <button onclick="switchScreen(2)" id="tab-2" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 3</button>
                 <button onclick="switchScreen(3)" id="tab-3" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 4</button>
                 <button onclick="switchScreen(4)" id="tab-4" class="w-full text-left p-3 bg-slate-800 rounded-xl text-xs font-bold transition-all">📄 Screen 5</button>
             </div>
         </div>
-        <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-800 text-[10px] text-slate-500">
-            <b>COMMANDS:</b> Header, Button, Section, Text
-        </div>
     </div>
 
-    <div id="ide" class="lg:col-span-5 space-y-6">
-        <div class="flex justify-between items-center bg-slate-900 p-3 rounded-3xl border border-slate-800">
-            <h2 class="text-lg font-black px-4 uppercase tracking-tighter italic">App Architect Pro</h2>
-            <div class="flex bg-slate-950 p-1 rounded-2xl">
-                <button id="editBtn" onclick="setMode('edit')" class="px-6 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white">EDIT</button>
-                <button id="previewBtn" onclick="setMode('preview')" class="px-6 py-2 rounded-xl text-xs font-bold text-slate-500">PLAY</button>
+    <div class="lg:col-span-5 space-y-4">
+        <div class="flex justify-between items-center bg-slate-900 p-3 rounded-2xl border border-slate-800">
+            <h2 class="text-md font-black px-4 uppercase italic">Architect Pro</h2>
+            <div class="flex bg-slate-950 p-1 rounded-xl">
+                <button id="editBtn" onclick="setMode('edit')" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white">EDIT</button>
+                <button id="previewBtn" onclick="setMode('preview')" class="px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500">PLAY</button>
             </div>
         </div>
 
         <div id="editorUI" class="space-y-4">
-            <div class="bg-slate-900 p-6 rounded-[2rem] border border-slate-800 shadow-xl flex gap-2">
-                <input type="text" id="cmdInput" placeholder='Add "Button" named "My Site"...' 
-                    class="flex-1 p-3 bg-slate-950 border border-slate-800 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 text-white text-sm">
+            <div class="bg-slate-900 p-4 rounded-3xl border border-slate-800 shadow-xl flex gap-2">
+                <input type="text" id="cmdInput" placeholder='Add "Header" named "Title"...' class="flex-1 p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm">
                 <button onclick="addComponent()" class="bg-indigo-600 px-6 rounded-xl font-bold text-xs">BUILD</button>
             </div>
 
-            <div id="inspector" class="bg-indigo-900/10 p-6 rounded-[2rem] border border-indigo-500/20 hidden space-y-4">
+            <div id="inspector" class="bg-indigo-900/10 p-6 rounded-3xl border border-indigo-500/20 hidden space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
-                        <label class="text-[9px] text-slate-500 uppercase block mb-1">Display Text</label>
+                        <label class="text-[9px] text-slate-500 uppercase block mb-1">Content</label>
                         <input type="text" id="editLabel" oninput="updateSelected()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-lg text-white">
                     </div>
                     <div>
-                        <label class="text-[9px] text-slate-500 uppercase block mb-1">Action Type</label>
-                        <select id="editActionType" onchange="toggleUrlInput(); updateSelected();" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs">
-                            <option value="none">None (Static)</option>
-                            <option value="nav">Internal Navigation</option>
-                            <option value="url">External Link (URL)</option>
+                        <label class="text-[9px] text-slate-500 uppercase block mb-1">Action</label>
+                        <select id="editActionType" onchange="toggleUrlInput(); updateSelected();" class="w-full p-2 bg-slate-950 rounded-lg text-xs">
+                            <option value="none">None</option>
+                            <option value="nav">Internal</option>
+                            <option value="url">Web Link</option>
                         </select>
                     </div>
                     <div id="navSelectDiv" class="hidden">
-                        <label class="text-[9px] text-slate-500 uppercase block mb-1">Destination Screen</label>
-                        <select id="editNavDest" onchange="updateSelected()" class="w-full p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs">
-                            <option value="0">Home</option>
-                            <option value="1">Screen 2</option>
-                            <option value="2">Screen 3</option>
-                            <option value="3">Screen 4</option>
-                            <option value="4">Screen 5</option>
+                        <label class="text-[9px] text-slate-500 uppercase block mb-1">Dest.</label>
+                        <select id="editNavDest" onchange="updateSelected()" class="w-full p-2 bg-slate-950 rounded-lg text-xs">
+                            <option value="0">Home</option><option value="1">S2</option><option value="2">S3</option><option value="3">S4</option><option value="4">S5</option>
                         </select>
                     </div>
                     <div id="urlInputDiv" class="hidden col-span-2">
-                        <label class="text-[9px] text-indigo-400 font-bold uppercase block mb-1">Website URL (https://...)</label>
-                        <input type="text" id="editUrl" placeholder="https://google.com" oninput="updateSelected()" class="w-full p-2 bg-indigo-950/30 border border-indigo-500/30 rounded-lg text-white text-xs">
+                        <input type="text" id="editUrl" placeholder="https://..." oninput="updateSelected()" class="w-full p-2 bg-indigo-950/40 border border-indigo-500/30 rounded-lg text-white text-xs">
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="move(-1)" class="flex-1 py-1 bg-slate-800 rounded text-[9px] font-bold">MOVE UP</button>
-                    <button onclick="move(1)" class="flex-1 py-1 bg-slate-800 rounded text-[9px] font-bold">MOVE DOWN</button>
-                    <button onclick="removeComp()" class="flex-1 py-1 bg-red-900/20 text-red-500 rounded text-[9px] font-bold">DELETE</button>
+                    <button onclick="move(-1)" class="flex-1 py-1.5 bg-slate-800 rounded text-[9px] font-bold">UP</button>
+                    <button onclick="move(1)" class="flex-1 py-1.5 bg-slate-800 rounded text-[9px] font-bold">DOWN</button>
+                    <button onclick="removeComp()" class="flex-1 py-1.5 bg-red-900/20 text-red-500 rounded text-[9px] font-bold">DEL</button>
                 </div>
             </div>
 
             <pre class="code-pane"><code id="codeDisplay" class="language-html"></code></pre>
         </div>
-        <div id="previewNotice" class="hidden p-8 text-center bg-indigo-600/10 border border-indigo-500/20 rounded-[2rem] italic text-slate-500">Preview Active. Interaction is live.</div>
+        <div class="text-[10px] text-slate-700 text-center uppercase tracking-widest font-black">
+            © 2026 Mr. Grindstaff's Creations
+        </div>
     </div>
 
     <div class="lg:col-span-4 flex flex-col items-center">
-        <div class="phone-viewport edit-mode grid-bg" id="canvas"></div>
+        <div class="phone-viewport edit-mode grid-bg shadow-indigo-500/10" id="canvas">
+            <div id="canvasContent"></div>
+            <div class="cc-footer">
+                &copy; MR. GRINDSTAFF'S CREATIONS 2026
+            </div>
+        </div>
     </div>
 </div>
 
@@ -117,44 +119,39 @@
 
     function setMode(m) {
         mode = m; selectedId = null;
-        document.getElementById('editBtn').className = m === 'edit' ? 'px-6 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white' : 'px-6 py-2 rounded-xl text-xs font-bold text-slate-500';
-        document.getElementById('previewBtn').className = m === 'preview' ? 'px-6 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white' : 'px-6 py-2 rounded-xl text-xs font-bold text-slate-500';
+        document.getElementById('editBtn').className = m === 'edit' ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white' : 'px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500';
+        document.getElementById('previewBtn').className = m === 'preview' ? 'px-4 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white' : 'px-4 py-1.5 rounded-lg text-xs font-bold text-slate-500';
         document.getElementById('canvas').className = `phone-viewport ${m}-mode ${m === 'edit' ? 'grid-bg' : ''}`;
         document.getElementById('editorUI').classList.toggle('hidden', m === 'preview');
-        document.getElementById('previewNotice').classList.toggle('hidden', m === 'edit');
         document.getElementById('inspector').classList.add('hidden');
         render();
     }
 
     function switchScreen(idx) {
         screenIdx = idx; selectedId = null;
-        if(mode === 'edit') document.getElementById('inspector').classList.add('hidden');
         for(let i=0; i<5; i++) document.getElementById(`tab-${i}`).classList.toggle('tab-active', i === idx);
         render();
     }
 
     function render() {
-        const canvas = document.getElementById('canvas'); canvas.innerHTML = "";
+        const content = document.getElementById('canvasContent'); content.innerHTML = "";
         project[screenIdx].forEach((item, i) => {
             const div = document.createElement('div');
             div.className = `ui-component ${selectedId === i ? 'selected' : ''}`;
-            
             div.onclick = (e) => {
                 e.stopPropagation();
                 if(mode === 'preview') {
                     if(item.actionType === 'nav') switchScreen(parseInt(item.actionValue));
-                    if(item.actionType === 'url' && item.actionValue) window.open(item.actionValue, '_blank');
-                } else {
-                    selectComp(i);
-                }
+                    if(item.actionType === 'url') window.open(item.actionValue, '_blank');
+                } else selectComp(i);
             };
 
             let inner = "";
-            if(item.type === 'Button') inner = `<div class="p-6"><button class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg text-sm uppercase tracking-widest">${item.label}</button></div>`;
+            if(item.type === 'Button') inner = `<div class="p-6"><button class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg text-sm uppercase">${item.label}</button></div>`;
             else if(item.type === 'Header') inner = `<h1 class="text-3xl font-black p-8 bg-white border-b-4 text-slate-900">${item.label}</h1>`;
             else inner = `<div class="p-6 text-slate-600 font-medium">${item.label}</div>`;
             
-            div.innerHTML = inner; canvas.appendChild(div);
+            div.innerHTML = inner; content.appendChild(div);
         });
         updateCode();
     }
@@ -180,9 +177,7 @@
         const item = project[screenIdx][selectedId];
         item.label = document.getElementById('editLabel').value;
         item.actionType = document.getElementById('editActionType').value;
-        if(item.actionType === 'nav') item.actionValue = document.getElementById('editNavDest').value;
-        else if(item.actionType === 'url') item.actionValue = document.getElementById('editUrl').value;
-        else item.actionValue = "";
+        item.actionValue = item.actionType === 'nav' ? document.getElementById('editNavDest').value : document.getElementById('editUrl').value;
         render();
     }
 
@@ -196,10 +191,7 @@
     }
 
     function updateCode() {
-        const code = project[screenIdx].map(item => {
-            const attr = item.actionType !== 'none' ? ` action="${item.actionType}:${item.actionValue}"` : "";
-            return `<${item.type}${attr}>${item.label}</${item.type}>`;
-        }).join('\n');
+        const code = project[screenIdx].map(item => `<${item.type}>${item.label}</${item.type}>`).join('\n');
         document.getElementById('codeDisplay').textContent = code || "";
         Prism.highlightElement(document.getElementById('codeDisplay'));
     }
@@ -213,7 +205,6 @@
     }
 
     function removeComp() { project[screenIdx].splice(selectedId, 1); selectedId = null; document.getElementById('inspector').classList.add('hidden'); render(); }
-    
     render();
 </script>
 </body>
